@@ -10,14 +10,17 @@ export class User extends Base {
   @Column({
     unique: true,
   })
-  email: string
+  email: string;
 
   @Column({
     select: false,
   })
   password: string;
 
-  @ManyToMany(() => Role)
+  @Field(() => [Role])
+  @ManyToMany(() => Role, {
+    cascade: true,
+  })
   @JoinTable({
     name: 'users_roles',
     joinColumn: {
