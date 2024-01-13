@@ -7,7 +7,7 @@ export const datasourceConfig: DataSourceOptions = {
   username: 'root',
   password: 'root',
   database: 'we_road',
-  entities: [__dirname + '/../../**/*.entity.ts'],
+  entities: [__dirname + '/../../**/*.entity.{js,ts}'],
   migrations: [__dirname + '/../migrations/*.ts'],
   synchronize: false,
 };
