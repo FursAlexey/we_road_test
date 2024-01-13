@@ -1,0 +1,48 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - db_test
+    networks:
+      - we_road
+
+  db:
+    image: postgres:16.1-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: we_road
+    ports:
+      - 5432:5432
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    networks:
+      - we_road
+
+  db_test:
+    image: postgres:16.1-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: we_road
+    ports:
+      - 5433:5432
+    volumes:
+      - dbdata-test:/var/lib/postgresql/data
+    networks:
+      - we_road
+
+networks:
+  we_road:
+
+volumes:
+  dbdata:
+  dbdata-test:
