@@ -13,17 +13,21 @@ export class Base {
   id: string;
 
   @Field(() => Date)
-  @CreateDateColumn()
+  @CreateDateColumn({
+    name: 'created_at',
+  })
   createdAt: Date;
 
   @Field(() => Date)
   @UpdateDateColumn({
+    name: 'updated_at',
     select: false,
   })
   updatedAt: Date;
 
   @Field(() => Date)
   @DeleteDateColumn({
+    name: 'deleted_at',
     select: false,
   })
   deletedAt: Date;
