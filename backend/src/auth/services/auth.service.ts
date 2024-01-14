@@ -36,7 +36,7 @@ export class AuthService {
         email: user.email,
       },
       {
-        expiresIn: '7 days',
+        expiresIn: '8 days',
       },
     );
   }

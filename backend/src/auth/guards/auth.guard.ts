@@ -1,15 +1,19 @@
 import {
   CanActivate,
   ExecutionContext,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { UsersService } from '../../users/services';
-import { GqlExecutionContext } from '@nestjs/graphql';
-import { IS_PUBLIC_KEY } from '../decorators';
 import { Reflector } from '@nestjs/core';
+import { ConfigType } from '@nestjs/config';
+import { GqlExecutionContext } from '@nestjs/graphql';
+
+import { UsersService } from '../../users/services';
+import { IS_PUBLIC_KEY } from '../decorators';
+import authConfig from '../../config/auth.config';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -17,6 +21,8 @@ export class AuthGuard implements CanActivate {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly reflector: Reflector,
+    @Inject(authConfig.KEY)
+    private readonly authConf: ConfigType<typeof authConfig>,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -41,8 +47,7 @@ export class AuthGuard implements CanActivate {
         sub: string;
         email: string;
       } = await this.jwtService.verifyAsync(token, {
-        // todo: use config
-        secret: process.env.JWT_SECRET ?? 'secret',
+        secret: this.authConf.jwtSecret,
       });
 
       const user = await this.usersService.getById(payload.sub);
