@@ -1,8 +1,7 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
 
-import { Travel } from '../entities';
-import { Mood } from '../interfaces';
-import { MoodInput } from './mood.input';
+import { Moods, Travel } from '../entities';
+import { MoodsInput } from './moods.input';
 
 @InputType()
 export class CreateTravelInput implements Partial<Travel> {
@@ -15,9 +14,9 @@ export class CreateTravelInput implements Partial<Travel> {
   @Field(() => String)
   description: string;
 
-  @Field(() => Boolean)
+  @Field(() => Boolean, { nullable: true, defaultValue: false })
   isPublic: boolean;
 
-  @Field(() => MoodInput)
-  mood: Mood;
+  @Field(() => MoodsInput)
+  mood: Moods;
 }

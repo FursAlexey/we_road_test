@@ -1,9 +1,9 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 
-import { Mood } from '../interfaces';
+import { Moods } from '../entities';
 
 @InputType()
-export class MoodInput implements Mood {
+export class MoodsInput implements Moods {
   @Field(() => Int)
   culture: number;
 

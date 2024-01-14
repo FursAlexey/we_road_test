@@ -1,8 +1,10 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Column, Entity, OneToMany, VirtualColumn } from 'typeorm';
+import { AfterLoad, BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
+import slugify from 'slugify';
+
 import { Base } from '../../database/entities';
 import { Tour } from '../../tours/entities';
-import { Mood } from '../interfaces';
+import { Moods } from './moods.entity';
 
 @ObjectType()
 @Entity({
@@ -12,6 +14,7 @@ export class Travel extends Base {
   @Field(() => Boolean)
   @Column({
     name: 'is_public',
+    default: true,
   })
   isPublic: boolean;
 
@@ -36,25 +39,29 @@ export class Travel extends Base {
   numberOfDays: number;
 
   @Field(() => Int)
-  @VirtualColumn({
-    query: (alias) =>
-      `
-        SELECT (
-          CASE
-            WHEN "number_of_days" - 1 > 0 THEN "number_of_days" - 1
-            ELSE 0
-          END
-        ) as "number_of_nights" FROM "travels"
-        WHERE "id" = ${alias}.id
-      `,
-  })
   numberOfNights: number;
 
+  @Field(() => [Tour])
   @OneToMany(() => Tour, (tour) => tour.travel)
   tours: Tour[];
 
+  @Field(() => Moods)
   @Column({
     type: 'jsonb',
   })
-  mood: Mood;
+  moods: Moods;
+
+  @BeforeInsert()
+  slugifyName() {
+    this.slug = slugify(this.name, {
+      lower: true,
+      remove: /[*+~.()'"!:@°]/g,
+    });
+  }
+
+  @AfterLoad()
+  calculateNumberOfNights() {
+    const numberOfDays = this.numberOfDays - 1;
+    this.numberOfNights = numberOfDays > 0 ? numberOfDays : 0;
+  }
 }

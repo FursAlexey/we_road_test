@@ -3,6 +3,7 @@ import { DeepPartial, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Travel } from '../entities';
+import { GetTravelsArgs } from '../dto';
 
 @Injectable()
 export class TravelsService {
@@ -15,8 +16,22 @@ export class TravelsService {
     return this.travelsRepository.save(this.travelsRepository.create(entity));
   }
 
-  findAll() {
-    return `This action returns all travels`;
+  async getAll({ slug, isPublic, limit, offset }: GetTravelsArgs) {
+    const qb = this.travelsRepository.createQueryBuilder('travel');
+
+    if (slug) {
+      qb.where('travel.slug LIKE :slug', {
+        slug: `%${slug}%`,
+      });
+    }
+
+    if (isPublic !== undefined) {
+      qb.andWhere('travel.is_public = :isPublic', {
+        isPublic,
+      });
+    }
+
+    return qb.take(limit).skip(offset).getMany();
   }
 
   getById(id: string): Promise<Travel | null> {
@@ -29,7 +44,7 @@ export class TravelsService {
     return this.travelsRepository.save({
       ...travel,
       ...entity,
-    })
+    });
   }
 
   async remove(travel: Travel): Promise<void> {
