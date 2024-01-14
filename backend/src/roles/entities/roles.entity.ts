@@ -9,9 +9,10 @@ registerEnumType(UserRole, {
 
 @ObjectType()
 @Entity()
-export class Role extends Base {
+export class Roles extends Base {
   @Field(() => UserRole)
   @Column({
+    unique: true,
     type: 'enum',
     enum: UserRole,
   })

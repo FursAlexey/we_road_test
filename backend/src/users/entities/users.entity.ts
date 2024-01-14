@@ -1,24 +1,22 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { BeforeInsert, Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 import { Base } from '../../database/entities';
-import { Role } from '../../roles/entities';
+import { Roles } from '../../roles/entities';
 
 @ObjectType()
 @Entity()
-export class User extends Base {
+export class Users extends Base {
   @Field(() => String)
   @Column({
     unique: true,
   })
   email: string;
 
-  @Column({
-    select: false,
-  })
+  @Column()
   password: string;
 
-  @Field(() => [Role])
-  @ManyToMany(() => Role, {
+  @Field(() => [Roles])
+  @ManyToMany(() => Roles, {
     cascade: true,
   })
   @JoinTable({
@@ -30,5 +28,10 @@ export class User extends Base {
       name: 'role_id',
     },
   })
-  roles: Role[];
+  roles: Roles[];
+
+  @BeforeInsert()
+  convertToLowerCase() {
+    this.email = this.email.toLowerCase();
+  }
 }

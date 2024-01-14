@@ -1,36 +1,37 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Migration1705170042800 implements MigrationInterface {
-  name = 'Migration1705170042800';
+export class Migration1705237002303 implements MigrationInterface {
+  name = 'Migration1705237002303';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-            CREATE TYPE "public"."role_name_enum" AS ENUM('Admin', 'Editor', 'User')
+            CREATE TYPE "public"."roles_name_enum" AS ENUM('Admin', 'Editor', 'User')
         `);
     await queryRunner.query(`
-            CREATE TABLE "role" (
+            CREATE TABLE "roles" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "created_at" TIMESTAMP NOT NULL DEFAULT now(),
                 "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
                 "deleted_at" TIMESTAMP,
-                "name" "public"."role_name_enum" NOT NULL,
-                CONSTRAINT "PK_b36bcfe02fc8de3c57a8b2391c2" PRIMARY KEY ("id")
+                "name" "public"."roles_name_enum" NOT NULL,
+                CONSTRAINT "UQ_648e3f5447f725579d7d4ffdfb7" UNIQUE ("name"),
+                CONSTRAINT "PK_c1433d71a4838793a49dcad46ab" PRIMARY KEY ("id")
             )
         `);
     await queryRunner.query(`
-            CREATE TABLE "user" (
+            CREATE TABLE "users" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "created_at" TIMESTAMP NOT NULL DEFAULT now(),
                 "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
                 "deleted_at" TIMESTAMP,
                 "email" character varying NOT NULL,
                 "password" character varying NOT NULL,
-                CONSTRAINT "UQ_e12875dfb3b1d92d7d7c5377e22" UNIQUE ("email"),
-                CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id")
+                CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"),
+                CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id")
             )
         `);
     await queryRunner.query(`
-            CREATE TABLE "travel" (
+            CREATE TABLE "travels" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "created_at" TIMESTAMP NOT NULL DEFAULT now(),
                 "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
@@ -40,12 +41,12 @@ export class Migration1705170042800 implements MigrationInterface {
                 "slug" character varying NOT NULL,
                 "description" character varying NOT NULL,
                 "number_of_days" integer NOT NULL,
-                CONSTRAINT "UQ_05f9b8cc27aaff6e2cd51382a7f" UNIQUE ("name"),
-                CONSTRAINT "PK_657b63ec7adcf2ecf757a490a67" PRIMARY KEY ("id")
+                CONSTRAINT "UQ_b24d3561bfa27a076dd9466cd28" UNIQUE ("name"),
+                CONSTRAINT "PK_cc2d44f93ba8f6b268978971e2b" PRIMARY KEY ("id")
             )
         `);
     await queryRunner.query(`
-            CREATE TABLE "tour" (
+            CREATE TABLE "tours" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "created_at" TIMESTAMP NOT NULL DEFAULT now(),
                 "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
@@ -55,8 +56,8 @@ export class Migration1705170042800 implements MigrationInterface {
                 "ending_date" TIME WITH TIME ZONE NOT NULL,
                 "price" integer NOT NULL,
                 "travel_id" uuid,
-                CONSTRAINT "UQ_948c1044932dba70d131655953d" UNIQUE ("name"),
-                CONSTRAINT "PK_972cd7fa4ec39286068130fa3f7" PRIMARY KEY ("id")
+                CONSTRAINT "UQ_103e1e02c612c0d0d31686bb251" UNIQUE ("name"),
+                CONSTRAINT "PK_2202ba445792c1ad0edf2de8de2" PRIMARY KEY ("id")
             )
         `);
     await queryRunner.query(`
@@ -73,16 +74,16 @@ export class Migration1705170042800 implements MigrationInterface {
             CREATE INDEX "IDX_1cf664021f00b9cc1ff95e17de" ON "users_roles" ("role_id")
         `);
     await queryRunner.query(`
-            ALTER TABLE "tour"
-            ADD CONSTRAINT "FK_afa7209ddd1fadc432eb410610b" FOREIGN KEY ("travel_id") REFERENCES "travel"("id") ON DELETE CASCADE ON UPDATE NO ACTION
+            ALTER TABLE "tours"
+            ADD CONSTRAINT "FK_b3977b16c820f3a64680038c54e" FOREIGN KEY ("travel_id") REFERENCES "travels"("id") ON DELETE CASCADE ON UPDATE NO ACTION
         `);
     await queryRunner.query(`
             ALTER TABLE "users_roles"
-            ADD CONSTRAINT "FK_e4435209df12bc1f001e5360174" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
+            ADD CONSTRAINT "FK_e4435209df12bc1f001e5360174" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE
         `);
     await queryRunner.query(`
             ALTER TABLE "users_roles"
-            ADD CONSTRAINT "FK_1cf664021f00b9cc1ff95e17de4" FOREIGN KEY ("role_id") REFERENCES "role"("id") ON DELETE CASCADE ON UPDATE CASCADE
+            ADD CONSTRAINT "FK_1cf664021f00b9cc1ff95e17de4" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE CASCADE
         `);
   }
 
@@ -94,7 +95,7 @@ export class Migration1705170042800 implements MigrationInterface {
             ALTER TABLE "users_roles" DROP CONSTRAINT "FK_e4435209df12bc1f001e5360174"
         `);
     await queryRunner.query(`
-            ALTER TABLE "tour" DROP CONSTRAINT "FK_afa7209ddd1fadc432eb410610b"
+            ALTER TABLE "tours" DROP CONSTRAINT "FK_b3977b16c820f3a64680038c54e"
         `);
     await queryRunner.query(`
             DROP INDEX "public"."IDX_1cf664021f00b9cc1ff95e17de"
@@ -106,19 +107,19 @@ export class Migration1705170042800 implements MigrationInterface {
             DROP TABLE "users_roles"
         `);
     await queryRunner.query(`
-            DROP TABLE "tour"
+            DROP TABLE "tours"
         `);
     await queryRunner.query(`
-            DROP TABLE "travel"
+            DROP TABLE "travels"
         `);
     await queryRunner.query(`
-            DROP TABLE "user"
+            DROP TABLE "users"
         `);
     await queryRunner.query(`
-            DROP TABLE "role"
+            DROP TABLE "roles"
         `);
     await queryRunner.query(`
-            DROP TYPE "public"."role_name_enum"
+            DROP TYPE "public"."roles_name_enum"
         `);
   }
 }
