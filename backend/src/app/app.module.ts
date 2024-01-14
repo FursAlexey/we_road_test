@@ -10,6 +10,8 @@ import { datasourceConfig } from '../database/datasource';
 import { UsersModule } from '../users/users.module';
 import { RolesModule } from '../roles/roles.module';
 import { AuthModule } from '../auth/auth.module';
+import { SeedersModule } from '../database/seeders/seeders.module';
+import { SeedService } from '../database/seeders/seed/seed.service';
 
 @Module({
   imports: [
@@ -22,8 +24,15 @@ import { AuthModule } from '../auth/auth.module';
     UsersModule,
     RolesModule,
     AuthModule,
+    SeedersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private readonly seedService: SeedService) {}
+
+  async onApplicationBootstrap() {
+    await this.seedService.seed();
+  }
+}
