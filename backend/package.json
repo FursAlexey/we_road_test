@@ -20,8 +20,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:generate": "yarn typeorm migration:generate -d src/database/datasource/index.ts -p src/database/migrations/migration",
+    "migration:create": "yarn typeorm migration:create src/database/migrations/custom-migration",
     "migration:revert": "yarn typeorm migration:revert -d src/database/datasource/index.ts",
-    "migration:run": "yarn typeorm migration:run -d src/database/datasource/index.ts"
+    "migration:run": "yarn typeorm migration:run -d src/database/datasource/index.ts",
+    "schema:drop": "yarn typeorm schema:drop -d src/database/datasource/index.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",
