@@ -2,29 +2,29 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { BadRequestException } from '@nestjs/common';
 
 import { UsersService } from '../services';
-import { Users } from '../entities';
+import { User } from '../entities';
 import { CreateUserInput, UpdateUserRolesInput } from '../dto';
 import { UserError } from '../errors';
 import { Roles } from '../../roles/decorators';
 import { UserRole } from '../../roles/constants';
 
-@Resolver(() => Users)
+@Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Query(() => [Users], { name: 'users' })
+  @Query(() => [User], { name: 'users' })
   listUsers() {
     return this.usersService.find();
   }
 
   @Roles(UserRole.Admin)
-  @Mutation(() => Users)
+  @Mutation(() => User)
   async createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
     return this.usersService.create(createUserInput);
   }
 
   @Roles(UserRole.Admin)
-  @Mutation(() => Users)
+  @Mutation(() => User)
   async updateUserRoles(
     @Args('updateUserRolesInput') { id, roleIds }: UpdateUserRolesInput,
   ) {
@@ -38,7 +38,7 @@ export class UsersResolver {
   }
 
   @Roles(UserRole.Admin)
-  @Mutation(() => Users)
+  @Mutation(() => User)
   async removeUser(@Args('id', { type: () => String }) id: string) {
     const userToRemove = await this.usersService.getById(id);
 

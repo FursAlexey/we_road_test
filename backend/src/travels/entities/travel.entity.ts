@@ -1,12 +1,14 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { Column, Entity, OneToMany, VirtualColumn } from 'typeorm';
 import { Base } from '../../database/entities';
-import { Tours } from '../../tours/entities';
+import { Tour } from '../../tours/entities';
 import { Mood } from '../interfaces';
 
 @ObjectType()
-@Entity()
-export class Travels extends Base {
+@Entity({
+  name: 'travels',
+})
+export class Travel extends Base {
   @Field(() => Boolean)
   @Column({
     name: 'is_public',
@@ -48,8 +50,8 @@ export class Travels extends Base {
   })
   numberOfNights: number;
 
-  @OneToMany(() => Tours, (tour) => tour.travel)
-  tours: Tours[];
+  @OneToMany(() => Tour, (tour) => tour.travel)
+  tours: Tour[];
 
   @Column({
     type: 'jsonb',

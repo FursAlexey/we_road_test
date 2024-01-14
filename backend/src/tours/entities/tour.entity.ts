@@ -1,11 +1,14 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Base } from '../../database/entities';
 import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
-import { Travels } from '../../travels/entities';
+
+import { Base } from '../../database/entities';
+import { Travel } from '../../travels/entities';
 
 @ObjectType()
-@Entity()
-export class Tours extends Base {
+@Entity({
+  name: 'tours',
+})
+export class Tour extends Base {
   @Field(() => String)
   @Column({
     unique: true,
@@ -30,11 +33,11 @@ export class Tours extends Base {
   @Column()
   price: number;
 
-  @ManyToOne(() => Travels, (travel) => travel.tours, {
+  @ManyToOne(() => Travel, (travel) => travel.tours, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({
     name: 'travel_id',
   })
-  travel: Travels;
+  travel: Travel;
 }

@@ -2,23 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
-import { Roles } from '../entities';
+import { Role } from '../entities';
 import { UserRole } from '../constants';
 
 @Injectable()
 export class RolesService {
   constructor(
-    @InjectRepository(Roles)
-    private readonly rolesRepository: Repository<Roles>,
+    @InjectRepository(Role)
+    private readonly rolesRepository: Repository<Role>,
   ) {}
 
-  getRolesByIds(ids: string[]): Promise<Roles[]> {
+  getRolesByIds(ids: string[]): Promise<Role[]> {
     return this.rolesRepository.findBy({
       id: In(ids),
     });
   }
 
-  getDefaultRole(): Promise<Roles> {
+  getDefaultRole(): Promise<Role> {
     return this.rolesRepository.findOneByOrFail({
       name: UserRole.User,
     });

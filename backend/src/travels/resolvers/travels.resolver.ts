@@ -2,27 +2,27 @@ import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { BadRequestException } from '@nestjs/common';
 
 import { TravelsService } from '../services';
-import { Travels } from '../entities';
+import { Travel } from '../entities';
 import { CreateTravelInput, UpdateTravelInput } from '../dto';
 import { TravelError } from '../errors';
 
-@Resolver(() => Travels)
+@Resolver(() => Travel)
 export class TravelsResolver {
   constructor(private readonly travelsService: TravelsService) {}
 
-  @Query(() => [Travels], { name: 'travels' })
+  @Query(() => [Travel], { name: 'travels' })
   getAll() {
     return this.travelsService.findAll();
   }
 
-  @Mutation(() => Travels)
+  @Mutation(() => Travel)
   createTravel(
     @Args('createTravelInput') createTravelInput: CreateTravelInput,
   ) {
     return this.travelsService.create(createTravelInput);
   }
 
-  @Mutation(() => Travels)
+  @Mutation(() => Travel)
   async updateTravel(
     @Args('updateTravelInput') updateTravelInput: UpdateTravelInput,
   ) {
@@ -37,7 +37,7 @@ export class TravelsResolver {
     return this.travelsService.update(travelToUpdate, updateTravelInput);
   }
 
-  @Mutation(() => Travels)
+  @Mutation(() => Travel)
   async removeTravel(@Args('id', { type: () => String }) id: string) {
     const travelToDelete = await this.travelsService.getById(id);
 

@@ -2,17 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { DeepPartial, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { UpdateTravelInput } from '../dto/update-travel.input';
-import { Travels } from '../entities';
+import { Travel } from '../entities';
 
 @Injectable()
 export class TravelsService {
   constructor(
-    @InjectRepository(Travels)
-    private readonly travelsRepository: Repository<Travels>,
+    @InjectRepository(Travel)
+    private readonly travelsRepository: Repository<Travel>,
   ) {}
 
-  create(entity: DeepPartial<Travels>): Promise<Travels> {
+  create(entity: DeepPartial<Travel>): Promise<Travel> {
     return this.travelsRepository.save(this.travelsRepository.create(entity));
   }
 
@@ -20,20 +19,20 @@ export class TravelsService {
     return `This action returns all travels`;
   }
 
-  getById(id: string): Promise<Travels | null> {
+  getById(id: string): Promise<Travel | null> {
     return this.travelsRepository.findOneBy({
       id,
     });
   }
 
-  update(travel: Travels, entity: Partial<Travels>) {
+  update(travel: Travel, entity: Partial<Travel>) {
     return this.travelsRepository.save({
       ...travel,
       ...entity,
     })
   }
 
-  async remove(travel: Travels): Promise<void> {
+  async remove(travel: Travel): Promise<void> {
     await this.travelsRepository.remove(travel);
   }
 }

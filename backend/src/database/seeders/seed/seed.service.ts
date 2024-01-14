@@ -3,8 +3,8 @@ import { DataSource, In } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 
 import { UserRole } from '../../../roles/constants';
-import { Roles } from '../../../roles/entities';
-import { Users } from '../../../users/entities';
+import { Role } from '../../../roles/entities';
+import { User } from '../../../users/entities';
 import { HashService } from '../../../utils/hash/hash.service';
 
 @Injectable()
@@ -20,8 +20,8 @@ export class SeedService {
     await this.createUsers(roles);
   }
 
-  async createRoles(): Promise<Roles[]> {
-    const rolesRepository = this.defaultDataSource.getRepository(Roles);
+  async createRoles(): Promise<Role[]> {
+    const rolesRepository = this.defaultDataSource.getRepository(Role);
 
     await Promise.all(
       Object.values(UserRole).map((role) => {
@@ -42,8 +42,8 @@ export class SeedService {
     return rolesRepository.find();
   }
 
-  async createUsers(roles: Roles[]): Promise<void> {
-    const usersRepository = this.defaultDataSource.getRepository(Users);
+  async createUsers(roles: Role[]): Promise<void> {
+    const usersRepository = this.defaultDataSource.getRepository(User);
     const existingUsers = await usersRepository.findBy({
       email: In(roles.map((role) => this.createEmailByRoleName(role.name))),
     });

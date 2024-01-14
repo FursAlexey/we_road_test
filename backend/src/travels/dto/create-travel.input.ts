@@ -1,11 +1,11 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
 
-import { Travels } from '../entities';
+import { Travel } from '../entities';
 import { Mood } from '../interfaces';
 import { MoodInput } from './mood.input';
 
 @InputType()
-export class CreateTravelInput implements Partial<Travels> {
+export class CreateTravelInput implements Partial<Travel> {
   @Field(() => String)
   name: string;
 
