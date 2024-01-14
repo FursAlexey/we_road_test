@@ -1,4 +1,11 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { BadRequestException } from '@nestjs/common';
 
 import { TravelsService } from '../services';
@@ -7,17 +14,24 @@ import { CreateTravelInput, GetTravelsArgs, UpdateTravelInput } from '../dto';
 import { TravelError } from '../errors';
 import { Roles } from '../../roles/decorators';
 import { UserRole } from '../../roles/constants';
-import { IsEditor } from '../../auth/decorators';
+import { IsEditor, Public } from '../../auth/decorators';
+import { Tour } from '../../tours/entities';
+import { ToursService } from '../../tours/services';
+import { GetToursArgs } from '../../tours/dto';
 
 @Resolver(() => Travel)
 export class TravelsResolver {
-  constructor(private readonly travelsService: TravelsService) {}
+  constructor(
+    private readonly travelsService: TravelsService,
+    private readonly toursService: ToursService,
+  ) {}
 
   @Query(() => [Travel], { name: 'travels' })
   getAll(
     @Args() getTravelsArgs: GetTravelsArgs,
-    @IsEditor() isEditor: boolean) {
-    // only editor and admin can see private travels
+    @IsEditor() isEditor: boolean,
+  ) {
+    // users can see only public travels
     if (!isEditor) {
       getTravelsArgs.isPublic = true;
     }
@@ -61,5 +75,13 @@ export class TravelsResolver {
     await this.travelsService.remove(travelToDelete);
 
     return travelToDelete;
+  }
+
+  @Public()
+  @ResolveField(() => [Tour])
+  async tours(@Parent() travel: Travel, @Args() args: GetToursArgs) {
+    const { id } = travel;
+
+    return this.toursService.getAll(id, args);
   }
 }

@@ -1,26 +1,74 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTourInput } from '../dto/create-tour.input';
-import { UpdateTourInput } from '../dto/update-tour.input';
+import { DeepPartial, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { Tour } from '../entities';
+import { GetToursArgs } from '../dto';
+import { CurrencyService } from '../../utils/currency';
 
 @Injectable()
 export class ToursService {
-  create(createTourInput: CreateTourInput) {
-    return 'This action adds a new tour';
+  constructor(
+    @InjectRepository(Tour)
+    private readonly toursRepository: Repository<Tour>,
+    private readonly currencyService: CurrencyService,
+  ) {}
+
+  create(entity: DeepPartial<Tour>): Promise<Tour> {
+    return this.toursRepository.save(this.toursRepository.create(entity));
   }
 
-  findAll() {
-    return `This action returns all tours`;
+  async getAll(travelId: string, args: GetToursArgs) {
+    const { priceFrom, priceTo, startingDate, endingDate, limit, offset } =
+      args;
+
+    const qb = this.toursRepository
+      .createQueryBuilder('tour')
+      .where('tour.travel_id = :travelId', {
+        travelId,
+      });
+
+    if (priceFrom) {
+      qb.andWhere('tour.price >= :priceFrom', {
+        priceFrom: this.currencyService.convertToCents(priceFrom),
+      });
+    }
+
+    if (priceTo) {
+      qb.andWhere('tour.price <= :priceFrom', {
+        priceTo: this.currencyService.convertToCents(priceTo),
+      });
+    }
+
+    if (startingDate) {
+      qb.andWhere('tour.starting_date >= :startingDate', {
+        startingDate: startingDate,
+      });
+    }
+
+    if (endingDate) {
+      qb.andWhere('tour.ending_date <= :endingDate', {
+        endingDate: endingDate,
+      });
+    }
+
+    return qb.take(limit).skip(offset).getMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tour`;
+  getById(id: string): Promise<Tour | null> {
+    return this.toursRepository.findOneBy({
+      id,
+    });
   }
 
-  update(id: number, updateTourInput: UpdateTourInput) {
-    return `This action updates a #${id} tour`;
+  update(tour: Tour, entity: Partial<Tour>) {
+    return this.toursRepository.save({
+      ...tour,
+      ...entity,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tour`;
+  async remove(tour: Tour): Promise<void> {
+    await this.toursRepository.remove(tour);
   }
 }

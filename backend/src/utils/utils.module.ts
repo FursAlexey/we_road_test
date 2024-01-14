@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 
-import { HashService } from './hash/hash.service';
+import { HashService } from './hash';
+import { CurrencyService } from './currency';
 
 @Module({
-  providers: [HashService],
-  exports: [HashService],
+  providers: [HashService, CurrencyService],
+  exports: [HashService, CurrencyService],
 })
 export class UtilsModule {}

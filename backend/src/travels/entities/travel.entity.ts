@@ -42,7 +42,9 @@ export class Travel extends Base {
   numberOfNights: number;
 
   @Field(() => [Tour])
-  @OneToMany(() => Tour, (tour) => tour.travel)
+  @OneToMany(() => Tour, (tour) => tour.travel, {
+    cascade: true,
+  })
   tours: Tour[];
 
   @Field(() => Moods)
