@@ -6,6 +6,7 @@ import { AuthService } from './services';
 import { AuthResolver } from './resolvers';
 import { UsersModule } from '../users/users.module';
 import { AuthGuard, RolesGuard } from './guards';
+import { UtilsModule } from '../utils/utils.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuthGuard, RolesGuard } from './guards';
       },
     }),
     UsersModule,
+    UtilsModule,
   ],
   providers: [
     AuthResolver,

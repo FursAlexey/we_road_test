@@ -1,16 +1,17 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 import { UsersService } from '../../users/services';
 import { LoginInput } from '../dto';
 import { AuthError } from '../errors';
+import { HashService } from '../../utils/hash';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly hashService: HashService,
   ) {}
 
   async login({ email, password }: LoginInput): Promise<string> {
@@ -20,15 +21,23 @@ export class AuthService {
       throw new UnauthorizedException(AuthError.IncorrectEmailOrPassword);
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await this.hashService.compare(
+      password,
+      user.password,
+    );
 
     if (!isPasswordValid) {
       throw new UnauthorizedException(AuthError.IncorrectEmailOrPassword);
     }
 
-    return this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
-    });
+    return this.jwtService.sign(
+      {
+        sub: user.id,
+        email: user.email,
+      },
+      {
+        expiresIn: '7 days',
+      },
+    );
   }
 }
