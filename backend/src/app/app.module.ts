@@ -9,6 +9,7 @@ import { AppService } from './app.service';
 import { datasourceConfig } from '../database/datasource';
 import { UsersModule } from '../users/users.module';
 import { RolesModule } from '../roles/roles.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RolesModule } from '../roles/roles.module';
     TypeOrmModule.forRoot(datasourceConfig),
     UsersModule,
     RolesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
