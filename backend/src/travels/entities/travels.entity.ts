@@ -2,6 +2,7 @@ import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { Column, Entity, OneToMany, VirtualColumn } from 'typeorm';
 import { Base } from '../../database/entities';
 import { Tours } from '../../tours/entities';
+import { Mood } from '../interfaces';
 
 @ObjectType()
 @Entity()
@@ -49,4 +50,9 @@ export class Travels extends Base {
 
   @OneToMany(() => Tours, (tour) => tour.travel)
   tours: Tours[];
+
+  @Column({
+    type: 'jsonb',
+  })
+  mood: Mood;
 }

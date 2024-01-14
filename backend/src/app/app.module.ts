@@ -12,6 +12,7 @@ import { RolesModule } from '../roles/roles.module';
 import { AuthModule } from '../auth/auth.module';
 import { SeedersModule } from '../database/seeders/seeders.module';
 import { SeedService } from '../database/seeders/seed/seed.service';
+import { TravelsModule } from '../travels/travels.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { SeedService } from '../database/seeders/seed/seed.service';
     RolesModule,
     AuthModule,
     SeedersModule,
+    TravelsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
