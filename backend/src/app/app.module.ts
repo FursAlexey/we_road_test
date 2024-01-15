@@ -26,13 +26,13 @@ import authConfig from '../config/auth.config';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: process.env.NODE_ENV !== 'test' ? '.env' : '.env.test',
       load: [databaseConfig, authConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [databaseConfig.KEY],
-      useFactory: async (dbConfig: ConfigType<typeof databaseConfig>) => {
-        return dbConfig as DataSourceOptions;
-      },
+      useFactory: async (dbConfig: ConfigType<typeof databaseConfig>) =>
+        dbConfig as DataSourceOptions,
     }),
     UsersModule,
     RolesModule,
