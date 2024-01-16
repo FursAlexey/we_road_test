@@ -6,7 +6,7 @@ import { User } from '../entities';
 import { FindManyOptions, Repository } from 'typeorm';
 import { RolesService } from '../../roles/services';
 import { Role } from '../../roles/entities';
-import { HashService } from '../../utils/hash/hash.service';
+import { HashService } from '../../utils/hash';
 
 @Injectable()
 export class UsersService {
@@ -40,7 +40,10 @@ export class UsersService {
   }
 
   find(options?: FindManyOptions<User>): Promise<User[]> {
-    return this.usersRepository.find(options);
+    return this.usersRepository.find({
+      ...options,
+      relations: ['roles'],
+    });
   }
 
   getById(id: string): Promise<User | null> {

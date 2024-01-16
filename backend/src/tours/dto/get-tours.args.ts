@@ -17,8 +17,8 @@ export class GetToursArgs implements Partial<Tour> {
   endingDate?: Date;
 
   @Field(() => Int, { nullable: true })
-  offset?: number = 0;
+  offset: number = 0;
 
   @Field(() => Int, { nullable: true })
-  limit?: number = 10;
+  limit: number = 10;
 }

@@ -18,5 +18,5 @@ export class CreateTravelInput implements Partial<Travel> {
   isPublic: boolean;
 
   @Field(() => MoodsInput)
-  mood: Moods;
+  moods: Moods;
 }

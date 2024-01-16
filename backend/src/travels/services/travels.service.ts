@@ -31,7 +31,10 @@ export class TravelsService {
       });
     }
 
-    return qb.take(limit).skip(offset).getMany();
+    return qb
+      .take(limit)
+      .skip(offset * limit)
+      .getMany();
   }
 
   getById(id: string): Promise<Travel | null> {

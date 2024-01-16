@@ -12,6 +12,10 @@ export class RolesService {
     private readonly rolesRepository: Repository<Role>,
   ) {}
 
+  getAllRoles(): Promise<Role[]> {
+    return this.rolesRepository.find();
+  }
+
   getRolesByIds(ids: string[]): Promise<Role[]> {
     return this.rolesRepository.findBy({
       id: In(ids),

@@ -44,7 +44,7 @@ export class ToursResolver {
   }
 
   @Roles(UserRole.Admin)
-  @Mutation(() => Tour)
+  @Mutation(() => Boolean)
   async removeTour(@Args('id', { type: () => String }) id: string) {
     const toutToDelete = await this.toursService.getById(id);
 
@@ -54,6 +54,6 @@ export class ToursResolver {
 
     await this.toursService.remove(toutToDelete);
 
-    return toutToDelete;
+    return true;
   }
 }

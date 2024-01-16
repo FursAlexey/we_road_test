@@ -39,6 +39,11 @@ export class TravelsResolver {
     return this.travelsService.getAll(getTravelsArgs);
   }
 
+  @Query(() => Travel, { name: 'travel' })
+  getOne(@Args('id') id: string) {
+    return this.travelsService.getById(id);
+  }
+
   @Roles(UserRole.Admin)
   @Mutation(() => Travel)
   createTravel(
@@ -64,7 +69,7 @@ export class TravelsResolver {
   }
 
   @Roles(UserRole.Admin)
-  @Mutation(() => Travel)
+  @Mutation(() => Boolean)
   async removeTravel(@Args('id', { type: () => String }) id: string) {
     const travelToDelete = await this.travelsService.getById(id);
 
@@ -74,7 +79,7 @@ export class TravelsResolver {
 
     await this.travelsService.remove(travelToDelete);
 
-    return travelToDelete;
+    return true;
   }
 
   @Public()

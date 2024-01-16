@@ -38,7 +38,14 @@ export class Travel extends Base {
   })
   numberOfDays: number;
 
-  @Field(() => Int)
+  @Field(() => Int, {
+    middleware: [
+      (ctx) => {
+        const numberOfNights = ctx.source.numberOfDays - 1;
+        return numberOfNights > 0 ? numberOfNights : 0;
+      },
+    ],
+  })
   numberOfNights: number;
 
   @Field(() => [Tour])

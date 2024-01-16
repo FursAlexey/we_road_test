@@ -7,6 +7,7 @@ import { CreateUserInput, UpdateUserRolesInput } from '../dto';
 import { UserError } from '../errors';
 import { Roles } from '../../roles/decorators';
 import { UserRole } from '../../roles/constants';
+import { ReqUser } from '../decorators';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -15,6 +16,11 @@ export class UsersResolver {
   @Query(() => [User], { name: 'users' })
   listUsers() {
     return this.usersService.find();
+  }
+
+  @Query(() => User, { name: 'me' })
+  getActiveUser(@ReqUser() user: User) {
+    return user;
   }
 
   @Roles(UserRole.Admin)

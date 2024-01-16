@@ -52,7 +52,10 @@ export class ToursService {
       });
     }
 
-    return qb.take(limit).skip(offset).getMany();
+    return qb
+      .take(limit)
+      .skip(offset * limit)
+      .getMany();
   }
 
   getById(id: string): Promise<Tour | null> {
