@@ -18,10 +18,11 @@ docker compose up db db_test
 (cd ./frontend; yarn install; yarn dev)
 ```
 
-### Three pre-configured users are available here:
-- *Admin* - email:admin@weroad.com, password:Admin
-- *Editor* - email:editor@weroad.com, password:Editor
-- *User* - email:user@weroad.com, password:User
+## How to interact with the app
+The application uses JWT authentication. To test various functionalities based on user roles pre-configured user profiles are available as follows [login - password]:
+- admin@weroad.com - Admin
+- editor@weroad.com - Editor
+- user@weroad.com - User
 
 ## Tests
 There are existing unit and integration tests, serving as examples. Similar testing patterns can be applied to other sections of the application.
