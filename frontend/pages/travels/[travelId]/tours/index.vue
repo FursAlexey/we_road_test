@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import type {
   QueryTravelArgs,
   Tour,
@@ -9,6 +9,7 @@ import type {
 import { travelWithToursQuery, removeTourMutation } from '~/queries';
 import { useActiveUser } from '~/composables';
 import ToursList from '~/components/toursList.vue';
+import { DEFAULT_LIMIT } from '~/constants';
 
 definePageMeta({
   middleware: ['auth'],
@@ -20,10 +21,15 @@ const { isAdmin, isEditor } = useActiveUser();
 
 const params = reactive<TravelToursArgs>({
   offset: 0,
+  limit: DEFAULT_LIMIT,
 });
 const travel = ref<Travel>();
 const tours = ref<Tour[]>([]);
-const hasMoreTours = ref(true);
+const hasMoreTours = computed(
+  () =>
+    tours.value.length >=
+    (params.limit ?? DEFAULT_LIMIT) * ((params.offset ?? 0) + 1),
+);
 
 // todo: configure and use cache properly
 const { load: fetchTravel, refetch: refetchTravel } = useLazyQuery<
@@ -35,6 +41,7 @@ const { load: fetchTravel, refetch: refetchTravel } = useLazyQuery<
   travelWithToursQuery,
   {
     id: travelId as string,
+    ...params,
   },
   {
     fetchPolicy: 'network-only',
@@ -75,11 +82,7 @@ async function handleMoreClick() {
   if (response) {
     const nextTours = response.data.travel.tours;
 
-    if (nextTours.length > 0) {
-      tours.value = [...tours.value, ...nextTours];
-    } else {
-      hasMoreTours.value = false;
-    }
+    tours.value = [...tours.value, ...nextTours];
   }
 }
 
@@ -97,10 +100,6 @@ onMounted(async () => {
   if (response) {
     travel.value = response.travel;
     tours.value = response.travel.tours;
-
-    if (tours.value.length === 0) {
-      hasMoreTours.value = false;
-    }
   }
 });
 </script>

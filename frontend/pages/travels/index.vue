@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import type {
   CreateTravelInput,
   QueryTravelsArgs,
-  Travel, UpdateTravelInput,
+  Travel,
+  UpdateTravelInput,
 } from '~/types/__generated__/resolvers-types';
 import TravelsList from '~/components/travelsList.vue';
 import {
   createTravelMutation,
   removeTravelMutation,
-  travelsQuery, updateTravelMutation,
+  travelsQuery,
+  updateTravelMutation,
 } from '~/queries';
 import { useActiveUser } from '~/composables';
 import { ROUTES } from '~/routes';
 import TravelForm from '~/components/travelForm.vue';
+import { DEFAULT_LIMIT } from '~/constants';
 
 definePageMeta({
   middleware: ['auth'],
@@ -23,8 +26,8 @@ const travels = ref<Travel[]>([]);
 const queryParams = reactive<QueryTravelsArgs>({
   slug: '',
   offset: 0,
+  limit: DEFAULT_LIMIT,
 });
-const hasMore = ref(false);
 const isTravelFormOpened = ref(false);
 const travelToUpdate = ref<Travel>();
 const { load: fetchTravels, refetch: refetchTravels } = useLazyQuery<
@@ -32,13 +35,17 @@ const { load: fetchTravels, refetch: refetchTravels } = useLazyQuery<
     travels: Travel[];
   },
   QueryTravelsArgs
->(travelsQuery, {
-  slug: queryParams.slug,
-  offset: queryParams.offset,
-  limit: queryParams.limit,
-}, {
-  fetchPolicy: 'network-only',
-});
+>(
+  travelsQuery,
+  {
+    slug: queryParams.slug,
+    offset: queryParams.offset,
+    limit: queryParams.limit,
+  },
+  {
+    fetchPolicy: 'network-only',
+  },
+);
 const { mutate: createTravel } = useMutation<
   {
     createTravel: Travel;
@@ -58,6 +65,11 @@ const { mutate: updateTravel } = useMutation<
 const { mutate: removeTravel } = useMutation(removeTravelMutation);
 
 const { isAdmin, isEditor } = useActiveUser();
+const hasMore = computed(
+  () =>
+    travels.value.length >=
+    (queryParams.limit ?? DEFAULT_LIMIT) * ((queryParams.offset ?? 0) + 1),
+);
 
 const fetchMoreTravels = async () => {
   if (typeof queryParams.offset === 'number') {
@@ -73,11 +85,7 @@ const fetchMoreTravels = async () => {
   if (response) {
     const nextTravels = response.data.travels;
 
-    if (nextTravels.length > 0) {
-      travels.value = [...travels.value, ...nextTravels];
-    } else {
-      hasMore.value = false;
-    }
+    travels.value = [...travels.value, ...nextTravels];
   }
 };
 
@@ -133,7 +141,9 @@ const handleUpdateTravel = async (payload: UpdateTravelInput) => {
   if (response?.data) {
     const updatedTravel = response.data.updateTravel;
 
-    travels.value = travels.value.map((travel) => travel.id === updatedTravel.id ? updatedTravel : travel);
+    travels.value = travels.value.map((travel) =>
+      travel.id === updatedTravel.id ? updatedTravel : travel,
+    );
   }
 
   isTravelFormOpened.value = false;
@@ -158,10 +168,8 @@ const handleCloseTravelForm = () => {
 onMounted(async () => {
   const response = await fetchTravels();
 
-  if (response && response.travels.length > 0) {
+  if (response) {
     travels.value = response.travels;
-  } else {
-    hasMore.value = false;
   }
 });
 </script>
