@@ -18,7 +18,7 @@ const { load: fetchUsers } = useLazyQuery(usersQuery, undefined, {
 });
 const { mutate: createUser } = useMutation(createUserMutation);
 const { mutate: removeUser } = useMutation(removeUserMutation);
-const { isAdmin } = useActiveUser();
+const { isAdmin, activeUser } = useActiveUser();
 const isAddUserFormOpened = ref(false);
 const users = ref<User[]>([]);
 
@@ -52,7 +52,7 @@ async function onUserDelete(id: string): Promise<void> {
 onMounted(async () => {
   const result = await fetchUsers();
 
-  users.value = result.users;
+  users.value = result.users.filter((user: User) => user.id !== activeUser.value?.id);
 });
 </script>
 

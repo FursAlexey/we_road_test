@@ -10,6 +10,10 @@ import { travelWithToursQuery, removeTourMutation } from '~/queries';
 import { useActiveUser } from '~/composables';
 import ToursList from '~/components/toursList.vue';
 
+definePageMeta({
+  middleware: ['auth'],
+});
+
 const route = useRoute();
 const travelId = route.params.travelId;
 const { isAdmin, isEditor } = useActiveUser();
@@ -112,7 +116,6 @@ onMounted(async () => {
         <div class="flex flex-col">
           <div class="flex justify-between">
             <h4>Tours</h4>
-            <UButton v-if="isAdmin" size="sm">Create</UButton>
           </div>
           <ToursList
             :has-more="hasMoreTours"

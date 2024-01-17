@@ -15,6 +15,10 @@ import { useActiveUser } from '~/composables';
 import { ROUTES } from '~/routes';
 import TravelForm from '~/components/travelForm.vue';
 
+definePageMeta({
+  middleware: ['auth'],
+});
+
 const travels = ref<Travel[]>([]);
 const queryParams = reactive<QueryTravelsArgs>({
   slug: '',
