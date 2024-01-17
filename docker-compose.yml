@@ -12,6 +12,18 @@ services:
     networks:
       - we_road
 
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+    networks:
+      - we_road
+
   db:
     image: postgres:16.1-alpine
     restart: always

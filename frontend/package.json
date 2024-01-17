@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "yarn generate-types && nuxt dev",
+    "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
@@ -20,10 +20,10 @@
     "sass": "^1.69.7"
   },
   "dependencies": {
-    "vue": "^3.4.10",
+    "@nuxt/ui": "^2.12.0",
     "@nuxtjs/apollo": "^5.0.0-alpha.11",
     "nuxt": "^3.9.1",
-    "@nuxt/ui": "^2.12.0",
+    "vue": "^3.4.10",
     "vue-router": "^4.2.5"
   }
 }
