@@ -4,6 +4,7 @@ import LoginForm from '~/components/loginForm.vue';
 import type { User } from '~/types/__generated__/resolvers-types';
 import { LocalstorageService } from '~/services/localstorage.service';
 import { activeUserQuery, loginQuery } from '~/queries';
+import { ROUTES } from '~/routes';
 
 const { mutate } = useMutation(loginQuery);
 const { onLogin } = useApollo();
@@ -33,7 +34,7 @@ async function handleLogin(payload: any) {
       LocalstorageService.setActiveUser(user);
     }
 
-    navigateTo('/users');
+    navigateTo(ROUTES.Travels);
   } catch (err) {
     const e = err as Error;
     error.value = e.message;

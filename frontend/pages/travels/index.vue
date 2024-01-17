@@ -174,6 +174,7 @@ onMounted(async () => {
         :has-more="hasMore"
         :can-be-edited="isEditor"
         :can-be-deleted="isAdmin"
+        :can-create="isAdmin"
         @on-more-click="fetchMoreTravels"
         @on-details-click="handleShowTravelDetails"
         @on-edit-click="handleEditTravelClick"

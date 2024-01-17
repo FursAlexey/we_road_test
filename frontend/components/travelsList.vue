@@ -27,6 +27,7 @@ const props = defineProps<{
   hasMore: boolean;
   canBeEdited: boolean;
   canBeDeleted: boolean;
+  canCreate: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -79,7 +80,9 @@ useDebounce(search, (debounceSearch) => {
       class="flex justify-between px-3 py-3.5 border-b border-gray-200 dark:border-gray-700"
     >
       <UInput v-model="search" placeholder="Filter travels..." />
-      <UButton @click="$emit('onCreateClick')">Create</UButton>
+      <UButton v-if="props.canCreate" @click="$emit('onCreateClick')"
+        >Create</UButton
+      >
     </div>
 
     <UTable :rows="travels" :columns="columns">
