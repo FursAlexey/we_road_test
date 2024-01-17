@@ -6,8 +6,6 @@ import { join } from 'path';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { DataSourceOptions } from 'typeorm';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsersModule } from '../users/users.module';
 import { RolesModule } from '../roles/roles.module';
 import { AuthModule } from '../auth/auth.module';
@@ -40,8 +38,6 @@ import authConfig from '../config/auth.config';
     SeedersModule,
     TravelsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {
   constructor(private readonly seedService: SeedService) {}

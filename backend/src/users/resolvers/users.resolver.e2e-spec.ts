@@ -3,60 +3,60 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 
 import { AppModule } from '../../app/app.module';
+import { UtilsModule } from '../../utils/utils.module';
+import { AuthService } from '../../auth/services';
+import { UsersModule } from '../users.module';
 
-describe('AppController (e2e)', () => {
+describe('Users resolver', () => {
   let app: INestApplication;
+  let authService: AuthService;
+  let token: string;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [AppModule, UtilsModule, UsersModule],
+      providers: [AuthService],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    app = module.createNestApplication();
+    authService = module.get<AuthService>(AuthService);
+    token = await authService.login({
+      email: 'admin@weroad.com',
+      password: 'Admin',
+    });
     await app.init();
   });
 
-  it('/ (GET)', async () => {
+  it('should return users', async () => {
     const response = await request(app.getHttpServer())
       .post('/graphql')
       .send({
         query: `
-          mutation {
-            login(loginInput: {
-              email: "Editor@weroad.com",
-              password: "Editor"
-            })
-          }
-        `,
-      });
-
-    // .expect(200)
-    // .expect(response.body).toEqu
-
-    console.log(response.body);
-  });
-
-  it('/ (GET)', async () => {
-    const response = await request(app.getHttpServer())
-      .post('/graphql')
-      .send({
-        query: `
-          query listUsers {
+          query {
             users {
               id
-              email
             }
           }
         `,
       })
-      .set(
-        'Authorization',
-        `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWM5NzE3Yi1hOGJmLTQ0YTUtODJjZC1jNWE1OTBjMzY5ZjkiLCJlbWFpbCI6ImVkaXRvckB3ZXJvYWQuY29tIiwiaWF0IjoxNzA1MzEyNjAzLCJleHAiOjE3MDYwMDM4MDN9.mhcxddKiU60265qFr5xtax-Lu56BfiYh2U82hlO_p1M`,
-      );
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
 
-    // .expect(200)
-    // .expect(response.body).toEqu
+    expect(response.body.data.users).toHaveLength(3);
+  });
 
-    console.log(response.body);
+  it('should fail if not authorized', async () => {
+    request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: `
+          query {
+            users {
+              id
+            }
+          }
+        `,
+      })
+      .expect(401);
   });
 });

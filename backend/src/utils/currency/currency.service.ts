@@ -7,7 +7,7 @@ export class CurrencyService {
   }
 
   convertToCurrency(price: number): number {
-   return price / 100;
+    return price / 100;
   }
 }
 
