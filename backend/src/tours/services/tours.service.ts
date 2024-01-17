@@ -71,10 +71,12 @@ export class ToursService {
   }
 
   update(tour: Tour, entity: Partial<Tour>) {
-    return this.toursRepository.save({
-      ...tour,
-      ...entity,
-    });
+    return this.toursRepository.save(
+      this.toursRepository.create({
+        ...tour,
+        ...entity,
+      }),
+    );
   }
 
   async remove(tour: Tour): Promise<void> {

@@ -1,9 +1,4 @@
-import {
-  ObjectType,
-  Field,
-  Int,
-  NextFn, Float,
-} from '@nestjs/graphql';
+import { ObjectType, Field, NextFn, Float } from '@nestjs/graphql';
 import {
   Column,
   Entity,
@@ -11,6 +6,7 @@ import {
   JoinColumn,
   BeforeInsert,
   Unique,
+  BeforeUpdate,
 } from 'typeorm';
 
 import { Base } from '../../database/entities';
@@ -61,7 +57,8 @@ export class Tour extends Base {
   travel: Travel;
 
   @BeforeInsert()
-  convertToCents() {
+  @BeforeUpdate()
+  beforeUpdate() {
     this.price = currencyService.convertToCents(this.price);
   }
 }
