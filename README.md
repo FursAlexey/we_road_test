@@ -1,3 +1,28 @@
+## Setup
+
+### NODE 18.19.0 required
+Make sure to install the dependencies:
+
+### 1. Run dev and test databases
+```bash
+docker compose up db db_test
+```
+
+### 2. Run backend
+```bash
+(cd ./backend; yarn start:dev)
+```
+
+### 3. Run frontend
+```bash
+(cd ./frontend; yarn dev)
+```
+
+### Three pre-configured users are available here:
+- *Admin* - email:admin@weroad.com, password:Admin
+- *Editor* - email:editor@weroad.com, password:Editor
+- *User* - email:user@weroad.com, password:User
+
 # Full stack Javascript/Typescript hiring test
 ## Description
 Create an application composed by two parts (front-end and back-end) with a structure similar to WeRoad.  
