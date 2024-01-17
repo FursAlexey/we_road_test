@@ -10,18 +10,32 @@ docker compose up db db_test
 
 ### 2. Run backend
 ```bash
-(cd ./backend; yarn start:dev)
+(cd ./backend; yarn install; yarn start:dev)
 ```
 
 ### 3. Run frontend
 ```bash
-(cd ./frontend; yarn dev)
+(cd ./frontend; yarn install; yarn dev)
 ```
 
 ### Three pre-configured users are available here:
 - *Admin* - email:admin@weroad.com, password:Admin
 - *Editor* - email:editor@weroad.com, password:Editor
 - *User* - email:user@weroad.com, password:User
+
+## Tests
+There are existing unit and integration tests, serving as examples. Similar testing patterns can be applied to other sections of the application.
+
+#### Run unit tests
+```
+(cd ./backend; yarn test)
+```
+
+#### Run integration tests
+```
+(cd ./backend; yarn test:e2e)
+```
+
 
 # Full stack Javascript/Typescript hiring test
 ## Description
