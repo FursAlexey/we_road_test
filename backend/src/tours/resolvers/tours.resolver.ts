@@ -26,7 +26,7 @@ export class ToursResolver {
       throw new BadRequestException(TravelError.NotFound);
     }
 
-    return this.toursService.create(createTourInput);
+    return this.toursService.create(travel, createTourInput);
   }
 
   @Roles(UserRole.Editor)

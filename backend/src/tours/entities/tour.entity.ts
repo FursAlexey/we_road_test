@@ -2,7 +2,7 @@ import {
   ObjectType,
   Field,
   Int,
-  NextFn,
+  NextFn, Float,
 } from '@nestjs/graphql';
 import {
   Column,
@@ -41,7 +41,7 @@ export class Tour extends Base {
   })
   endingDate: Date;
 
-  @Field(() => Int, {
+  @Field(() => Float, {
     middleware: [
       async (_, next: NextFn) => {
         const value = await next();

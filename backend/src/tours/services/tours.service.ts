@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Tour } from '../entities';
 import { GetToursArgs } from '../dto';
 import { CurrencyService } from '../../utils/currency';
+import { Travel } from '../../travels/entities';
 
 @Injectable()
 export class ToursService {
@@ -14,8 +15,13 @@ export class ToursService {
     private readonly currencyService: CurrencyService,
   ) {}
 
-  create(entity: DeepPartial<Tour>): Promise<Tour> {
-    return this.toursRepository.save(this.toursRepository.create(entity));
+  create(travel: Travel, entity: DeepPartial<Tour>): Promise<Tour> {
+    return this.toursRepository.save(
+      this.toursRepository.create({
+        ...entity,
+        travel,
+      }),
+    );
   }
 
   async getAll(travelId: string, args: GetToursArgs) {
