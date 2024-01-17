@@ -1,0 +1,12 @@
+{
+  "overwrite": true,
+  "generates": {
+    "./types/__generated__/resolvers-types.ts": {
+      "schema": "http://localhost:8000/graphql",
+      "plugins": [
+        "typescript",
+        "typescript-resolvers"
+      ]
+    }
+  }
+}

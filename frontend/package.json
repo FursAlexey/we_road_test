@@ -1,0 +1,29 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "yarn generate-types && nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "generate-types": "graphql-codegen --config codegen.json"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-resolvers": "^4.0.1",
+    "@nuxt/types": "^2.17.3",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.2",
+    "sass": "^1.69.7"
+  },
+  "dependencies": {
+    "vue": "^3.4.10",
+    "@nuxtjs/apollo": "^5.0.0-alpha.11",
+    "nuxt": "^3.9.1",
+    "@nuxt/ui": "^2.12.0",
+    "vue-router": "^4.2.5"
+  }
+}
