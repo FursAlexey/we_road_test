@@ -219,7 +219,10 @@ onMounted(async () => {
     <NuxtLayout name="common">
       <div class="flex flex-col gap-4">
         <div class="travelDetails">
-          <h2>{{ travel?.name }}</h2>
+          <div>
+            <UButton @click.prevent="$router.back()">Back</UButton>
+            <h2>{{ travel?.name }}</h2>
+          </div>
           <p>{{ travel?.description }}</p>
         </div>
         <div class="flex flex-col">

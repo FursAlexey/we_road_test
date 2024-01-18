@@ -81,6 +81,10 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       <UInput v-model.number="state.moods.relax" />
     </UFormGroup>
 
+    <UFormGroup label="Public" name="isPublic">
+      <UToggle v-model="state.isPublic" />
+    </UFormGroup>
+
     <div class="flex justify-between">
       <UButton type="button" color="red" @click="$emit('onCancel')"
         >Cancel</UButton
@@ -88,11 +92,5 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       <UButton type="submit">Submit</UButton>
     </div>
   </UForm>
-  <span v-show="props.error" class="error">{{ props.error }}</span>
+  <span v-show="props.error" class="accent-red-600">{{ props.error }}</span>
 </template>
-
-<style lang="scss">
-.error {
-  color: red;
-}
-</style>

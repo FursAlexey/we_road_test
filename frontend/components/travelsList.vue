@@ -1,29 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { Travel } from '~/types/__generated__/resolvers-types';
 import { useDebounce } from '~/composables';
-
-const columns = [
-  {
-    key: 'view',
-  },
-  {
-    key: 'name',
-    label: 'Name',
-  },
-  {
-    key: 'numberOfDays',
-    label: 'Days',
-  },
-  {
-    key: 'numberOfNights',
-    label: 'Nights',
-  },
-  {
-    key: 'actions',
-    label: 'Action',
-  },
-];
 
 const props = defineProps<{
   travels: Travel[];
@@ -37,10 +15,13 @@ const emit = defineEmits<{
   (e: 'onMoreClick'): void;
   (e: 'onDetailsClick', id: string): void;
   (e: 'onViewClick', id: string): void;
+  (e: 'onEditClick', id: string): void;
   (e: 'onDeleteClick', id: string): void;
   (e: 'onSearchChange', value: string): void;
   (e: 'onCreateClick'): void;
 }>();
+
+const search = ref('');
 
 const actions = (row: { id: string }) => {
   const allowedActions = [];
@@ -64,7 +45,39 @@ const actions = (row: { id: string }) => {
   return [allowedActions];
 };
 
-const search = ref('');
+const columns = computed(() => {
+  const cols = [
+    {
+      key: 'view',
+    },
+    {
+      key: 'name',
+      label: 'Name',
+    },
+    {
+      key: 'numberOfDays',
+      label: 'Days',
+    },
+    {
+      key: 'numberOfNights',
+      label: 'Nights',
+    },
+    {
+      key: 'isPublic',
+      label: 'Public',
+    },
+    {
+      key: 'actions',
+      label: 'Action',
+    },
+  ];
+
+  if (!props.canBeEdited && !props.canBeDeleted) {
+    return cols.filter(({ key }) => key !== 'isPublic');
+  }
+
+  return cols;
+});
 
 useDebounce(search, (debounceSearch) => {
   emit('onSearchChange', debounceSearch);
@@ -96,6 +109,9 @@ useDebounce(search, (debounceSearch) => {
             icon="i-heroicons-ellipsis-horizontal-20-solid"
           />
         </UDropdown>
+      </template>
+      <template #isPublic-data="{ row }">
+        <UToggle disabled :model-value="row.isPublic" />
       </template>
     </UTable>
 

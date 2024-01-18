@@ -3,7 +3,8 @@ import { onMounted, reactive, ref } from 'vue';
 import type {
   CreateTravelInput,
   QueryTravelsArgs,
-  Travel, TravelList,
+  Travel,
+  TravelList,
   UpdateTravelInput,
 } from '~/types/__generated__/resolvers-types';
 import TravelsList from '~/components/travelsList.vue';
