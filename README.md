@@ -1,21 +1,7 @@
-## Setup
+## Start the app
 
-### NODE 18.19.0 required
-Make sure to install the dependencies:
-
-### 1. Run dev and test databases
 ```bash
-docker compose up db db_test
-```
-
-### 2. Run backend
-```bash
-(cd ./backend; yarn install; yarn start:dev)
-```
-
-### 3. Run frontend
-```bash
-(cd ./frontend; yarn install; yarn dev)
+docker compose up
 ```
 
 ## How to interact with the app
