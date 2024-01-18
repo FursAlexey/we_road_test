@@ -30,7 +30,7 @@ export class TravelsService {
     }
 
     if (isPublic !== undefined) {
-      qb.andWhere('travel.is_public = :isPublic', {
+      qb.andWhere('travel.isPublic = :isPublic', {
         isPublic,
       });
     }

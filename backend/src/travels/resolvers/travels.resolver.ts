@@ -14,7 +14,7 @@ import { CreateTravelInput, GetTravelsArgs, UpdateTravelInput } from '../dto';
 import { TravelError } from '../errors';
 import { Roles } from '../../roles/decorators';
 import { UserRole } from '../../roles/constants';
-import { IsEditor, Public } from '../../auth/decorators';
+import { IsAdminDecorator, IsEditor, Public } from '../../auth/decorators';
 import { Tour, ToursList } from '../../tours/entities';
 import { ToursService } from '../../tours/services';
 import { GetToursArgs } from '../../tours/dto';
@@ -31,9 +31,9 @@ export class TravelsResolver {
   getAll(
     @Args() getTravelsArgs: GetTravelsArgs,
     @IsEditor() isEditor: boolean,
+    @IsAdminDecorator() isAdmin: boolean,
   ): Promise<PaginatedData<Travel>> {
-    // users can see only public travels
-    if (!isEditor) {
+    if (!isEditor && !isAdmin) {
       getTravelsArgs.isPublic = true;
     }
 
