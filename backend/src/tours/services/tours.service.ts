@@ -6,6 +6,9 @@ import { Tour } from '../entities';
 import { GetToursArgs } from '../dto';
 import { CurrencyService } from '../../utils/currency';
 import { Travel } from '../../travels/entities';
+import { PaginationService } from '../../utils/pagination/services';
+import { PaginatedData } from '../../utils/pagination/interfaces';
+import { SortDirection } from '../../utils/pagination/constants';
 
 @Injectable()
 export class ToursService {
@@ -13,6 +16,7 @@ export class ToursService {
     @InjectRepository(Tour)
     private readonly toursRepository: Repository<Tour>,
     private readonly currencyService: CurrencyService,
+    private readonly paginationService: PaginationService,
   ) {}
 
   create(travel: Travel, entity: DeepPartial<Tour>): Promise<Tour> {
@@ -24,7 +28,10 @@ export class ToursService {
     );
   }
 
-  async getAll(travelId: string, args: GetToursArgs) {
+  async getAll(
+    travelId: string,
+    args: GetToursArgs,
+  ): Promise<PaginatedData<Tour>> {
     const { priceFrom, priceTo, startingDate, endingDate, limit, offset } =
       args;
 
@@ -41,27 +48,36 @@ export class ToursService {
     }
 
     if (priceTo) {
-      qb.andWhere('tour.price <= :priceFrom', {
+      qb.andWhere('tour.price <= :priceTo', {
         priceTo: this.currencyService.convertToCents(priceTo),
       });
     }
 
     if (startingDate) {
-      qb.andWhere('tour.starting_date >= :startingDate', {
+      qb.andWhere('tour.startingDate >= :startingDate', {
         startingDate: startingDate,
       });
     }
 
     if (endingDate) {
-      qb.andWhere('tour.ending_date <= :endingDate', {
+      qb.andWhere('tour.endingDate <= :endingDate', {
         endingDate: endingDate,
       });
     }
 
-    return qb
-      .take(limit)
-      .skip(offset * limit)
-      .getMany();
+    // use startingDate sort by default
+    if (!args.sort.some(({ field }) => field === 'startingDate')) {
+      args.sort.push({
+        field: '"startingDate"',
+        direction: SortDirection.ASC,
+      });
+    }
+
+    return this.paginationService.getPaginatedData(qb, {
+      limit,
+      offset,
+      sort: args.sort,
+    });
   }
 
   getById(id: string): Promise<Tour | null> {

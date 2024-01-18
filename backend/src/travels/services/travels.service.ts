@@ -4,19 +4,23 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Travel } from '../entities';
 import { GetTravelsArgs } from '../dto';
+import { PaginationService } from '../../utils/pagination/services';
 
 @Injectable()
 export class TravelsService {
   constructor(
     @InjectRepository(Travel)
     private readonly travelsRepository: Repository<Travel>,
+    private readonly paginationService: PaginationService,
   ) {}
 
   create(entity: DeepPartial<Travel>): Promise<Travel> {
     return this.travelsRepository.save(this.travelsRepository.create(entity));
   }
 
-  async getAll({ slug, isPublic, limit, offset }: GetTravelsArgs) {
+  async getAll(args: GetTravelsArgs) {
+    const { slug, isPublic, limit, offset } = args;
+
     const qb = this.travelsRepository.createQueryBuilder('travel');
 
     if (slug) {
@@ -31,10 +35,11 @@ export class TravelsService {
       });
     }
 
-    return qb
-      .take(limit)
-      .skip(offset * limit)
-      .getMany();
+    return this.paginationService.getPaginatedData(qb, {
+      limit,
+      offset,
+      sort: [],
+    });
   }
 
   getById(id: string): Promise<Travel | null> {

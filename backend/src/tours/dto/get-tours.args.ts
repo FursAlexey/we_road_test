@@ -1,9 +1,10 @@
-import { ArgsType, Field, Float, Int } from '@nestjs/graphql';
+import { ArgsType, Field, Float } from '@nestjs/graphql';
 
 import { Tour } from '../entities';
+import { PaginationArgs } from '../../utils/pagination/dto';
 
 @ArgsType()
-export class GetToursArgs implements Partial<Tour> {
+export class GetToursArgs extends PaginationArgs implements Partial<Tour> {
   @Field(() => Float, { nullable: true })
   priceFrom?: number;
 
@@ -15,10 +16,4 @@ export class GetToursArgs implements Partial<Tour> {
 
   @Field(() => Date, { nullable: true })
   endingDate?: Date;
-
-  @Field(() => Int, { nullable: true })
-  offset: number = 0;
-
-  @Field(() => Int, { nullable: true })
-  limit: number = 10;
 }

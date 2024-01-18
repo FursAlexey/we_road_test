@@ -25,14 +25,12 @@ export class Tour extends Base {
 
   @Field(() => Date)
   @Column({
-    name: 'starting_date',
     type: 'timestamp with time zone',
   })
   startingDate: Date;
 
   @Field(() => Date)
   @Column({
-    name: 'ending_date',
     type: 'timestamp with time zone',
   })
   endingDate: Date;

@@ -9,15 +9,16 @@ import {
 import { BadRequestException } from '@nestjs/common';
 
 import { TravelsService } from '../services';
-import { Travel } from '../entities';
+import { Travel, TravelList } from '../entities';
 import { CreateTravelInput, GetTravelsArgs, UpdateTravelInput } from '../dto';
 import { TravelError } from '../errors';
 import { Roles } from '../../roles/decorators';
 import { UserRole } from '../../roles/constants';
 import { IsEditor, Public } from '../../auth/decorators';
-import { Tour } from '../../tours/entities';
+import { Tour, ToursList } from '../../tours/entities';
 import { ToursService } from '../../tours/services';
 import { GetToursArgs } from '../../tours/dto';
+import { PaginatedData } from '../../utils/pagination/interfaces';
 
 @Resolver(() => Travel)
 export class TravelsResolver {
@@ -26,11 +27,11 @@ export class TravelsResolver {
     private readonly toursService: ToursService,
   ) {}
 
-  @Query(() => [Travel], { name: 'travels' })
+  @Query(() => TravelList, { name: 'travels' })
   getAll(
     @Args() getTravelsArgs: GetTravelsArgs,
     @IsEditor() isEditor: boolean,
-  ) {
+  ): Promise<PaginatedData<Travel>> {
     // users can see only public travels
     if (!isEditor) {
       getTravelsArgs.isPublic = true;
@@ -83,8 +84,11 @@ export class TravelsResolver {
   }
 
   @Public()
-  @ResolveField(() => [Tour])
-  async tours(@Parent() travel: Travel, @Args() args: GetToursArgs) {
+  @ResolveField(() => ToursList)
+  async tours(
+    @Parent() travel: Travel,
+    @Args() args: GetToursArgs,
+  ): Promise<PaginatedData<Tour>> {
     const { id } = travel;
 
     return this.toursService.getAll(id, args);

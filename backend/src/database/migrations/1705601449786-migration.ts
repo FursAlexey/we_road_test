@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1705262120844 implements MigrationInterface {
-    name = 'Migration1705262120844'
+export class Migration1705601449786 implements MigrationInterface {
+    name = 'Migration1705601449786'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -31,34 +31,34 @@ export class Migration1705262120844 implements MigrationInterface {
             )
         `);
         await queryRunner.query(`
+            CREATE TABLE "travels" (
+                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+                "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "deleted_at" TIMESTAMP,
+                "isPublic" boolean NOT NULL DEFAULT true,
+                "name" character varying NOT NULL,
+                "slug" character varying NOT NULL,
+                "description" character varying NOT NULL,
+                "numberOfDays" integer NOT NULL,
+                "moods" jsonb NOT NULL,
+                CONSTRAINT "UQ_b24d3561bfa27a076dd9466cd28" UNIQUE ("name"),
+                CONSTRAINT "PK_cc2d44f93ba8f6b268978971e2b" PRIMARY KEY ("id")
+            )
+        `);
+        await queryRunner.query(`
             CREATE TABLE "tours" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "created_at" TIMESTAMP NOT NULL DEFAULT now(),
                 "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
                 "deleted_at" TIMESTAMP,
                 "name" character varying NOT NULL,
-                "starting_date" TIMESTAMP WITH TIME ZONE NOT NULL,
-                "ending_date" TIMESTAMP WITH TIME ZONE NOT NULL,
+                "startingDate" TIMESTAMP WITH TIME ZONE NOT NULL,
+                "endingDate" TIMESTAMP WITH TIME ZONE NOT NULL,
                 "price" integer NOT NULL,
                 "travel_id" uuid,
                 CONSTRAINT "uq_travel_id_name" UNIQUE ("name", "travel_id"),
                 CONSTRAINT "PK_2202ba445792c1ad0edf2de8de2" PRIMARY KEY ("id")
-            )
-        `);
-        await queryRunner.query(`
-            CREATE TABLE "travels" (
-                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "created_at" TIMESTAMP NOT NULL DEFAULT now(),
-                "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
-                "deleted_at" TIMESTAMP,
-                "is_public" boolean NOT NULL DEFAULT true,
-                "name" character varying NOT NULL,
-                "slug" character varying NOT NULL,
-                "description" character varying NOT NULL,
-                "number_of_days" integer NOT NULL,
-                "moods" jsonb NOT NULL,
-                CONSTRAINT "UQ_b24d3561bfa27a076dd9466cd28" UNIQUE ("name"),
-                CONSTRAINT "PK_cc2d44f93ba8f6b268978971e2b" PRIMARY KEY ("id")
             )
         `);
         await queryRunner.query(`
@@ -108,10 +108,10 @@ export class Migration1705262120844 implements MigrationInterface {
             DROP TABLE "users_roles"
         `);
         await queryRunner.query(`
-            DROP TABLE "travels"
+            DROP TABLE "tours"
         `);
         await queryRunner.query(`
-            DROP TABLE "tours"
+            DROP TABLE "travels"
         `);
         await queryRunner.query(`
             DROP TABLE "users"

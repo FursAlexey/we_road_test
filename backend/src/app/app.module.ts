@@ -12,6 +12,7 @@ import { AuthModule } from '../auth/auth.module';
 import { SeedersModule } from '../database/seeders/seeders.module';
 import { SeedService } from '../database/seeders/seed/seed.service';
 import { TravelsModule } from '../travels/travels.module';
+import { ToursModule } from '../tours/tours.module';
 import databaseConfig from '../config/database.config';
 import authConfig from '../config/auth.config';
 
@@ -37,6 +38,7 @@ import authConfig from '../config/auth.config';
     AuthModule,
     SeedersModule,
     TravelsModule,
+    ToursModule,
   ],
 })
 export class AppModule {

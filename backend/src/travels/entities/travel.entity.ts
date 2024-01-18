@@ -13,7 +13,6 @@ import { Moods } from './moods.entity';
 export class Travel extends Base {
   @Field(() => Boolean)
   @Column({
-    name: 'is_public',
     default: true,
   })
   isPublic: boolean;
@@ -33,9 +32,7 @@ export class Travel extends Base {
   description: string;
 
   @Field(() => Int)
-  @Column({
-    name: 'number_of_days',
-  })
+  @Column()
   numberOfDays: number;
 
   @Field(() => Int, {
@@ -48,7 +45,6 @@ export class Travel extends Base {
   })
   numberOfNights: number;
 
-  @Field(() => [Tour])
   @OneToMany(() => Tour, (tour) => tour.travel, {
     cascade: true,
   })
