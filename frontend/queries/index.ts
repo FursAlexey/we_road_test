@@ -80,7 +80,10 @@ export const removeUserMutation = gql`
 export const travelsQuery = gql`
   query travels($slug: String, $limit: Int, $offset: Int) {
     travels(slug: $slug, limit: $limit, offset: $offset) {
-      ${travelFields}
+      data {
+        ${travelFields}
+      }
+      hasMore
     }
   }
 `;
@@ -94,6 +97,7 @@ export const travelWithToursQuery = gql`
     $priceTo: Float
     $startingDate: DateTime
     $endingDate: DateTime
+    $sort: [SortArgs!]
   ) {
     travel(id: $id) {
       ${travelFields}
@@ -104,8 +108,12 @@ export const travelWithToursQuery = gql`
         priceTo: $priceTo
         startingDate: $startingDate
         endingDate: $endingDate
+        sort: $sort
       ) {
-        ${tourFields}
+        data {
+          ${tourFields}     
+        }
+        hasMore
       }
     }
   }

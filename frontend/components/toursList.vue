@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Tour } from '~/types/__generated__/resolvers-types';
-import { computed } from 'vue';
+import { type SortArgs, SortDirection, type Tour } from '~/types/__generated__/resolvers-types';
+import { computed, watch } from 'vue';
 
 const formatDate = (date: Date) => {
   return date.toLocaleDateString('en-gb', {
@@ -14,18 +14,22 @@ const columns = [
   {
     key: 'name',
     label: 'Name',
+    sortable: true,
   },
   {
     key: 'price',
     label: 'Price',
+    sortable: true,
   },
   {
     key: 'startingDate',
     label: 'Staring Date',
+    sortable: true,
   },
   {
     key: 'endingDate',
     label: 'Ending Date',
+    sortable: true,
   },
   {
     key: 'actions',
@@ -44,6 +48,12 @@ const emit = defineEmits<{
   (e: 'onMoreClick'): void;
   (e: 'onEditClick', id: string): void;
   (e: 'onDeleteClick', id: string): void;
+  (e: 'onSortChange', sort: SortArgs): void;
+}>();
+
+const sort = ref<{
+  column: string;
+  direction: 'asc' | 'desc';
 }>();
 
 const actions = (row: { id: string }) => {
@@ -68,6 +78,15 @@ const actions = (row: { id: string }) => {
   return [allowedActions];
 };
 
+watch(sort, (value) => {
+  if (value && value.column) {
+    emit('onSortChange', {
+      field: value.column,
+      direction: value.direction.toUpperCase() as SortDirection,
+    });
+  }
+});
+
 const rows = computed(() =>
   props.tours.map((tour) => ({
     ...tour,
@@ -79,7 +98,12 @@ const rows = computed(() =>
 
 <template>
   <div>
-    <UTable :rows="rows" :columns="columns">
+    <UTable
+      v-model:sort="sort"
+      :rows="rows"
+      :columns="columns"
+      sort-mode="manual"
+    >
       <template v-if="actions.length > 0" #actions-data="{ row }">
         <UDropdown :items="actions(row)">
           <UButton
@@ -94,7 +118,7 @@ const rows = computed(() =>
     <div
       class="flex justify-center px-3 py-3.5 border-t border-gray-200 dark:border-gray-700"
     >
-      <UButton color="violet" v-if="props.hasMore" @click="$emit('onMoreClick')"
+      <UButton v-if="props.hasMore" @click="$emit('onMoreClick')"
         >Show more</UButton
       >
     </div>

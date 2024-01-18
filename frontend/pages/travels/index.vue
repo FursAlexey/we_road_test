@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import type {
   CreateTravelInput,
   QueryTravelsArgs,
-  Travel,
+  Travel, TravelList,
   UpdateTravelInput,
 } from '~/types/__generated__/resolvers-types';
 import TravelsList from '~/components/travelsList.vue';
@@ -16,7 +16,6 @@ import {
 import { useActiveUser } from '~/composables';
 import { ROUTES } from '~/routes';
 import TravelForm from '~/components/travelForm.vue';
-import { DEFAULT_LIMIT } from '~/constants';
 
 definePageMeta({
   middleware: ['auth'],
@@ -26,13 +25,12 @@ const travels = ref<Travel[]>([]);
 const queryParams = reactive<QueryTravelsArgs>({
   slug: '',
   offset: 0,
-  limit: DEFAULT_LIMIT,
 });
 const isTravelFormOpened = ref(false);
 const travelToUpdate = ref<Travel>();
 const { load: fetchTravels, refetch: refetchTravels } = useLazyQuery<
   {
-    travels: Travel[];
+    travels: TravelList;
   },
   QueryTravelsArgs
 >(
@@ -65,11 +63,7 @@ const { mutate: updateTravel } = useMutation<
 const { mutate: removeTravel } = useMutation(removeTravelMutation);
 
 const { isAdmin, isEditor } = useActiveUser();
-const hasMore = computed(
-  () =>
-    travels.value.length >=
-    (queryParams.limit ?? DEFAULT_LIMIT) * ((queryParams.offset ?? 0) + 1),
-);
+const hasMore = ref(false);
 
 const fetchMoreTravels = async () => {
   if (typeof queryParams.offset === 'number') {
@@ -83,9 +77,10 @@ const fetchMoreTravels = async () => {
   });
 
   if (response) {
-    const nextTravels = response.data.travels;
+    const nextTravels = response.data.travels.data;
 
     travels.value = [...travels.value, ...nextTravels];
+    hasMore.value = response.data.travels.hasMore;
   }
 };
 
@@ -117,7 +112,8 @@ const handleSearchChange = async (search: string) => {
   });
 
   if (response) {
-    travels.value = response.data.travels;
+    travels.value = response.data.travels.data;
+    hasMore.value = response.data.travels.hasMore;
   }
 };
 
@@ -169,7 +165,8 @@ onMounted(async () => {
   const response = await fetchTravels();
 
   if (response) {
-    travels.value = response.travels;
+    travels.value = response.travels.data;
+    hasMore.value = response.travels.hasMore;
   }
 });
 </script>

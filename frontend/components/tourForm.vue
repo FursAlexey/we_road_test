@@ -4,17 +4,9 @@ import type {
   CreateTourInput,
   Tour,
 } from '~/types/__generated__/resolvers-types';
-import { watchEffect } from 'vue';
+import { formatDate } from '~/utils';
 
 interface FormState extends Omit<CreateTourInput, 'travelId'> {}
-
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('en-us', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
 
 const emit = defineEmits<{
   (e: 'onSubmit', payload: FormState): void;
@@ -37,14 +29,6 @@ const state = reactive<FormState>({
   price: props.tourToEdit?.price ?? 0,
 });
 
-watchEffect(() => {
-  console.log('curr: ', new Date());
-  console.log('startingDate: ', state.startingDate);
-});
-// const price = ref(props.tourToEdit?.price ?? 0);
-//
-// const formattedPrice = ref(props.tourToEdit?.price ?? 0);
-
 const validate = (state: FormState): FormError[] => {
   const errors = [];
   if (!state.name) errors.push({ path: 'name', message: 'Required' });
@@ -52,17 +36,7 @@ const validate = (state: FormState): FormError[] => {
   return errors;
 };
 
-// const handleInputChange = (e) => {
-//   const newPrice = Number(e.target.value);
-//
-//   if (newPrice) {
-//     formattedPrice.value = Number(newPrice.toFixed(2));
-//   }
-// };
-
 async function onSubmit(event: FormSubmitEvent<FormState>) {
-  // event.data.price = formattedPrice.value;
-
   emit('onSubmit', event.data);
 }
 </script>

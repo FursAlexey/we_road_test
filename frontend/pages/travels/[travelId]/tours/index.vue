@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
-import type {
-  CreateTourInput,
-  QueryTravelArgs,
-  Tour,
-  Travel,
-  TravelToursArgs,
-  UpdateTourInput,
+import { onMounted, reactive, ref, watch } from 'vue';
+import {
+  type CreateTourInput,
+  type QueryTravelArgs,
+  type SortArgs,
+  type Tour,
+  type Travel,
+  type TravelToursArgs,
+  type UpdateTourInput,
 } from '~/types/__generated__/resolvers-types';
 import {
   travelWithToursQuery,
@@ -16,9 +17,8 @@ import {
 } from '~/queries';
 import { useActiveUser } from '~/composables';
 import ToursList from '~/components/toursList.vue';
-import { DEFAULT_LIMIT } from '~/constants';
 import TourForm from '~/components/tourForm.vue';
-import TravelForm from '~/components/travelForm.vue';
+import { formatDate } from '~/utils';
 
 definePageMeta({
   middleware: ['auth'],
@@ -30,15 +30,10 @@ const { isAdmin, isEditor } = useActiveUser();
 
 const params = reactive<TravelToursArgs>({
   offset: 0,
-  limit: DEFAULT_LIMIT,
 });
 const travel = ref<Travel>();
 const tours = ref<Tour[]>([]);
-const hasMoreTours = computed(
-  () =>
-    tours.value.length >=
-    (params.limit ?? DEFAULT_LIMIT) * ((params.offset ?? 0) + 1),
-);
+const hasMoreTours = ref(false);
 const isTourFormOpened = ref(false);
 const tourToUpdate = ref<Tour>();
 
@@ -76,20 +71,21 @@ const { mutate: updateTour } = useMutation<
   }
 >(updateTourMutation);
 
-const handleMoreClick = async () => {
-  if (typeof params.offset === 'number') {
-    params.offset++;
-  }
-
+const refetchTours = async () => {
   const variables: TravelToursArgs = {
     offset: params.offset,
+    sort: params.sort,
+    priceFrom: undefined,
+    priceTo: undefined,
+    startingDate: undefined,
+    endingDate: undefined,
   };
 
-  if (params.priceFrom !== undefined) {
+  if (typeof params.priceFrom === 'number') {
     variables.priceFrom = params.priceFrom;
   }
 
-  if (params.priceTo !== undefined) {
+  if (typeof params.priceTo === 'number') {
     variables.priceTo = params.priceTo;
   }
 
@@ -107,11 +103,23 @@ const handleMoreClick = async () => {
   });
 
   if (response) {
-    const nextTours = response.data.travel.tours;
+    hasMoreTours.value = response.data.travel.tours.hasMore;
 
-    tours.value = [...tours.value, ...nextTours];
+    return response.data.travel.tours.data;
   }
+
+  return [];
 };
+
+watch(params, async (value) => {
+  const newTours = await refetchTours();
+
+  if (value.offset === 0) {
+    tours.value = newTours;
+  } else {
+    tours.value = [...tours.value, ...newTours];
+  }
+});
 
 const closeTourForm = () => {
   isTourFormOpened.value = false;
@@ -121,7 +129,6 @@ const closeTourForm = () => {
 const handleCreateTourFormSubmit = async (
   payload: Omit<CreateTourInput, 'travelId'>,
 ) => {
-  console.log('payload: ', payload);
   const response = await createTour({
     createTourInput: {
       travelId: travelId as string,
@@ -185,12 +192,24 @@ const handleEditTourClick = (id: string) => {
   }
 };
 
+const handleShowMoreClick = () => {
+  if (typeof params.offset === 'number') {
+    params.offset++;
+  }
+};
+
+const handleSortChange = async (sort: SortArgs) => {
+  params.offset = 0;
+  params.sort = [sort];
+};
+
 onMounted(async () => {
   const response = await fetchTravel();
 
   if (response) {
     travel.value = response.travel;
-    tours.value = response.travel.tours;
+    tours.value = response.travel.tours.data;
+    hasMoreTours.value = response.travel.tours.hasMore;
   }
 });
 </script>
@@ -204,9 +223,61 @@ onMounted(async () => {
           <p>{{ travel?.description }}</p>
         </div>
         <div class="flex flex-col">
-          <div class="flex justify-between">
+          <div class="flex justify-between mb-8">
             <h4>Tours</h4>
             <UButton @click="isTourFormOpened = true">Create</UButton>
+          </div>
+          <div class="flex justify-between">
+
+            <div class="flex gap-2 align-center">
+              <UFormGroup label="Price from" name="priceFrom">
+                <UInput v-model="params.priceFrom" type="number" step="0.01" />
+              </UFormGroup>
+              <UFormGroup label="Price to" name="priceTo">
+                <UInput v-model="params.priceTo" type="number" step="0.01" />
+              </UFormGroup>
+            </div>
+
+            <div class="flex gap-2 align-center">
+              <UFormGroup label="Starting date" name="startingDate">
+                <UPopover :popper="{ placement: 'bottom-start' }">
+                  <UButton
+                    icon="i-heroicons-calendar-days-20-solid"
+                    :label="
+                      params.startingDate
+                        ? formatDate(params.startingDate)
+                        : 'Select date'
+                    "
+                  />
+
+                  <template #panel="{ close }">
+                    <LazyDatePicker
+                      v-model="params.startingDate"
+                      @close="close"
+                    />
+                  </template>
+                </UPopover>
+              </UFormGroup>
+              <UFormGroup label="Ending date" name="endingDate">
+                <UPopover :popper="{ placement: 'bottom-start' }">
+                  <UButton
+                    icon="i-heroicons-calendar-days-20-solid"
+                    :label="
+                      params.endingDate
+                        ? formatDate(params.endingDate)
+                        : 'Select date'
+                    "
+                  />
+
+                  <template #panel="{ close }">
+                    <LazyDatePicker
+                      v-model="params.endingDate"
+                      @close="close"
+                    />
+                  </template>
+                </UPopover>
+              </UFormGroup>
+            </div>
           </div>
           <ToursList
             :has-more="hasMoreTours"
@@ -214,8 +285,9 @@ onMounted(async () => {
             :can-be-edited="isEditor"
             :can-be-deleted="isAdmin"
             @on-delete-click="handleRemoveTourClick"
-            @on-more-click="handleMoreClick"
+            @on-more-click="handleShowMoreClick"
             @on-edit-click="handleEditTourClick"
+            @on-sort-change="handleSortChange"
           />
 
           <UModal v-model="isTourFormOpened" prevent-close>

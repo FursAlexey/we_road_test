@@ -128,8 +128,9 @@ export type MutationUpdateUserRolesArgs = {
 export type Query = {
   __typename?: 'Query';
   me: User;
+  roles: Array<Role>;
   travel: Travel;
-  travels: Array<Travel>;
+  travels: TravelList;
   users: Array<User>;
 };
 
@@ -144,6 +145,7 @@ export type QueryTravelsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
+  sort?: InputMaybe<Array<SortArgs>>;
 };
 
 export type Role = {
@@ -155,6 +157,16 @@ export type Role = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type SortArgs = {
+  direction?: InputMaybe<SortDirection>;
+  field: Scalars['String']['input'];
+};
+
+export enum SortDirection {
+  Asc = 'ASC',
+  Desc = 'DESC'
+}
+
 export type Tour = {
   __typename?: 'Tour';
   createdAt: Scalars['DateTime']['output'];
@@ -162,9 +174,15 @@ export type Tour = {
   endingDate: Scalars['DateTime']['output'];
   id: Scalars['String']['output'];
   name: Scalars['String']['output'];
-  price: Scalars['Int']['output'];
+  price: Scalars['Float']['output'];
   startingDate: Scalars['DateTime']['output'];
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type ToursList = {
+  __typename?: 'ToursList';
+  data: Array<Tour>;
+  hasMore: Scalars['Boolean']['output'];
 };
 
 export type Travel = {
@@ -179,7 +197,7 @@ export type Travel = {
   numberOfDays: Scalars['Int']['output'];
   numberOfNights: Scalars['Int']['output'];
   slug: Scalars['String']['output'];
-  tours: Array<Tour>;
+  tours: ToursList;
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -190,7 +208,14 @@ export type TravelToursArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   priceFrom?: InputMaybe<Scalars['Float']['input']>;
   priceTo?: InputMaybe<Scalars['Float']['input']>;
+  sort?: InputMaybe<Array<SortArgs>>;
   startingDate?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type TravelList = {
+  __typename?: 'TravelList';
+  data: Array<Travel>;
+  hasMore: Scalars['Boolean']['output'];
 };
 
 export type UpdateTourInput = {
@@ -315,9 +340,13 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   Role: ResolverTypeWrapper<Role>;
+  SortArgs: SortArgs;
+  SortDirection: SortDirection;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Tour: ResolverTypeWrapper<Tour>;
+  ToursList: ResolverTypeWrapper<ToursList>;
   Travel: ResolverTypeWrapper<Travel>;
+  TravelList: ResolverTypeWrapper<TravelList>;
   UpdateTourInput: UpdateTourInput;
   UpdateTravelInput: UpdateTravelInput;
   UpdateUserRolesInput: UpdateUserRolesInput;
@@ -340,9 +369,12 @@ export type ResolversParentTypes = {
   Mutation: {};
   Query: {};
   Role: Role;
+  SortArgs: SortArgs;
   String: Scalars['String']['output'];
   Tour: Tour;
+  ToursList: ToursList;
   Travel: Travel;
+  TravelList: TravelList;
   UpdateTourInput: UpdateTourInput;
   UpdateTravelInput: UpdateTravelInput;
   UpdateUserRolesInput: UpdateUserRolesInput;
@@ -377,8 +409,9 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
   travel?: Resolver<ResolversTypes['Travel'], ParentType, ContextType, RequireFields<QueryTravelArgs, 'id'>>;
-  travels?: Resolver<Array<ResolversTypes['Travel']>, ParentType, ContextType, RequireFields<QueryTravelsArgs, 'limit' | 'offset'>>;
+  travels?: Resolver<ResolversTypes['TravelList'], ParentType, ContextType, RequireFields<QueryTravelsArgs, 'limit' | 'offset' | 'sort'>>;
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
 };
 
@@ -397,9 +430,15 @@ export type TourResolvers<ContextType = any, ParentType extends ResolversParentT
   endingDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  price?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  price?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   startingDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ToursListResolvers<ContextType = any, ParentType extends ResolversParentTypes['ToursList'] = ResolversParentTypes['ToursList']> = {
+  data?: Resolver<Array<ResolversTypes['Tour']>, ParentType, ContextType>;
+  hasMore?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -414,8 +453,14 @@ export type TravelResolvers<ContextType = any, ParentType extends ResolversParen
   numberOfDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   numberOfNights?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  tours?: Resolver<Array<ResolversTypes['Tour']>, ParentType, ContextType, RequireFields<TravelToursArgs, 'limit' | 'offset'>>;
+  tours?: Resolver<ResolversTypes['ToursList'], ParentType, ContextType, RequireFields<TravelToursArgs, 'limit' | 'offset' | 'sort'>>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TravelListResolvers<ContextType = any, ParentType extends ResolversParentTypes['TravelList'] = ResolversParentTypes['TravelList']> = {
+  data?: Resolver<Array<ResolversTypes['Travel']>, ParentType, ContextType>;
+  hasMore?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -436,7 +481,9 @@ export type Resolvers<ContextType = any> = {
   Query?: QueryResolvers<ContextType>;
   Role?: RoleResolvers<ContextType>;
   Tour?: TourResolvers<ContextType>;
+  ToursList?: ToursListResolvers<ContextType>;
   Travel?: TravelResolvers<ContextType>;
+  TravelList?: TravelListResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 };
 
