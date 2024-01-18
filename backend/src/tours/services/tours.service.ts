@@ -54,13 +54,13 @@ export class ToursService {
     }
 
     if (startingDate) {
-      qb.andWhere('tour.startingDate >= :startingDate', {
+      qb.andWhere('DATE(tour.startingDate) >= :startingDate', {
         startingDate: startingDate,
       });
     }
 
     if (endingDate) {
-      qb.andWhere('tour.endingDate <= :endingDate', {
+      qb.andWhere('DATE(tour.endingDate) <= :endingDate', {
         endingDate: endingDate,
       });
     }

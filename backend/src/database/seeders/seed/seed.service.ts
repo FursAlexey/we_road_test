@@ -25,17 +25,17 @@ const exampleTravels = [
     tours: [
       {
         name: 'ITJOR20211101',
-        startingDate: new Date('2021-11-01'),
-        endingDate: new Date('2021-11-09'),
+        startingDate: new Date('2024-11-01'),
+        endingDate: new Date('2024-11-09'),
         price: 1999,
       },
       {
         name: 'ITJOR20211112',
-        startingDate: new Date('2021-11-12'),
-        endingDate: new Date('2021-11-20'),
+        startingDate: new Date('2024-11-12'),
+        endingDate: new Date('2024-11-20'),
         price: 1899,
-      }
-    ]
+      },
+    ],
   },
   {
     name: 'Iceland: hunting for the Northern Lights',
@@ -52,17 +52,17 @@ const exampleTravels = [
     tours: [
       {
         name: 'ITJOR20211125',
-        startingDate: new Date('2021-11-25'),
-        endingDate: new Date('2021-12-03'),
+        startingDate: new Date('2024-11-25'),
+        endingDate: new Date('2024-12-03'),
         price: 2149,
       },
       {
         name: 'ITICE20211101',
-        startingDate: new Date('2021-11-01'),
-        endingDate: new Date('2021-11-08'),
+        startingDate: new Date('2024-11-01'),
+        endingDate: new Date('2024-11-08'),
         price: 1999,
-      }
-    ]
+      },
+    ],
   },
   {
     name: 'United Arab Emirates: from Dubai to Abu Dhabi',
@@ -79,17 +79,17 @@ const exampleTravels = [
     tours: [
       {
         name: 'ITARA20211221',
-        startingDate: new Date('2021-12-21'),
-        endingDate: new Date('2021-12-28'),
+        startingDate: new Date('2024-12-21'),
+        endingDate: new Date('2024-12-28'),
         price: 1899,
       },
       {
         name: 'ITARA20211222',
-        startingDate: new Date('2022-01-03'),
-        endingDate: new Date('2022-01-10'),
+        startingDate: new Date('2024-01-03'),
+        endingDate: new Date('2024-01-10'),
         price: 1499,
-      }
-    ]
+      },
+    ],
   },
 ];
 
@@ -172,10 +172,12 @@ export class SeedService {
 
     if (existingTravels.length === 0) {
       await travelsRepository.save(
-        exampleTravels.map((travel) => travelsRepository.create({
-          ...travel,
-          tours: travel.tours.map((tour) => toursRepository.create(tour))
-        })),
+        exampleTravels.map((travel) =>
+          travelsRepository.create({
+            ...travel,
+            tours: travel.tours.map((tour) => toursRepository.create(tour)),
+          }),
+        ),
       );
     }
   }
