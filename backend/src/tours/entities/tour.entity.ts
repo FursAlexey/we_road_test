@@ -57,6 +57,6 @@ export class Tour extends Base {
   @BeforeInsert()
   @BeforeUpdate()
   beforeUpdate() {
-    this.price = currencyService.convertToCents(this.price);
+    this.price = currencyService.convertToCents(this.price > 0 ? this.price : 0);
   }
 }
