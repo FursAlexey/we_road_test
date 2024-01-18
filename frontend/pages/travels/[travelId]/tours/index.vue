@@ -1,15 +1,24 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
 import type {
+  CreateTourInput,
   QueryTravelArgs,
   Tour,
   Travel,
   TravelToursArgs,
+  UpdateTourInput,
 } from '~/types/__generated__/resolvers-types';
-import { travelWithToursQuery, removeTourMutation } from '~/queries';
+import {
+  travelWithToursQuery,
+  removeTourMutation,
+  createTourMutation,
+  updateTourMutation,
+} from '~/queries';
 import { useActiveUser } from '~/composables';
 import ToursList from '~/components/toursList.vue';
 import { DEFAULT_LIMIT } from '~/constants';
+import TourForm from '~/components/tourForm.vue';
+import TravelForm from '~/components/travelForm.vue';
 
 definePageMeta({
   middleware: ['auth'],
@@ -30,6 +39,8 @@ const hasMoreTours = computed(
     tours.value.length >=
     (params.limit ?? DEFAULT_LIMIT) * ((params.offset ?? 0) + 1),
 );
+const isTourFormOpened = ref(false);
+const tourToUpdate = ref<Tour>();
 
 // todo: configure and use cache properly
 const { load: fetchTravel, refetch: refetchTravel } = useLazyQuery<
@@ -48,8 +59,24 @@ const { load: fetchTravel, refetch: refetchTravel } = useLazyQuery<
   },
 );
 const { mutate: removeTour } = useMutation(removeTourMutation);
+const { mutate: createTour } = useMutation<
+  {
+    createTour: Tour;
+  },
+  {
+    createTourInput: CreateTourInput;
+  }
+>(createTourMutation);
+const { mutate: updateTour } = useMutation<
+  {
+    updateTour: Tour;
+  },
+  {
+    updateTourInput: UpdateTourInput;
+  }
+>(updateTourMutation);
 
-async function handleMoreClick() {
+const handleMoreClick = async () => {
   if (typeof params.offset === 'number') {
     params.offset++;
   }
@@ -84,15 +111,79 @@ async function handleMoreClick() {
 
     tours.value = [...tours.value, ...nextTours];
   }
-}
+};
 
-async function handleRemoveTourClick(id: string) {
+const closeTourForm = () => {
+  isTourFormOpened.value = false;
+  tourToUpdate.value = undefined;
+};
+
+const handleCreateTourFormSubmit = async (
+  payload: Omit<CreateTourInput, 'travelId'>,
+) => {
+  console.log('payload: ', payload);
+  const response = await createTour({
+    createTourInput: {
+      travelId: travelId as string,
+      ...payload,
+    },
+  });
+
+  if (response?.data) {
+    tours.value = [...tours.value, response.data.createTour];
+  }
+
+  closeTourForm();
+};
+
+const handleUpdateTourFormSubmit = async (
+  payload: Omit<UpdateTourInput, 'tourId'>,
+) => {
+  if (tourToUpdate.value) {
+    console.log('payload: ', payload);
+    const response = await updateTour({
+      updateTourInput: {
+        tourId: tourToUpdate.value.id,
+        ...payload,
+      },
+    });
+
+    if (response?.data) {
+      const updatedTour = response.data.updateTour;
+
+      tours.value = tours.value.map((tour) =>
+        tour.id === updatedTour.id ? updatedTour : tour,
+      );
+    }
+  }
+
+  closeTourForm();
+};
+
+const handleTourFormSubmit = (payload: Omit<CreateTourInput, 'travelId'>) => {
+  if (tourToUpdate.value) {
+    handleUpdateTourFormSubmit(payload);
+  } else {
+    handleCreateTourFormSubmit(payload);
+  }
+};
+
+const handleRemoveTourClick = async (id: string) => {
   await removeTour({
     id,
   });
 
   tours.value = tours.value.filter((tour) => tour.id !== id);
-}
+};
+
+const handleEditTourClick = (id: string) => {
+  const tourToEdit = tours.value.find((tour) => tour.id === id);
+
+  if (tourToEdit) {
+    tourToUpdate.value = tourToEdit;
+    isTourFormOpened.value = true;
+  }
+};
 
 onMounted(async () => {
   const response = await fetchTravel();
@@ -115,6 +206,7 @@ onMounted(async () => {
         <div class="flex flex-col">
           <div class="flex justify-between">
             <h4>Tours</h4>
+            <UButton @click="isTourFormOpened = true">Create</UButton>
           </div>
           <ToursList
             :has-more="hasMoreTours"
@@ -123,7 +215,18 @@ onMounted(async () => {
             :can-be-deleted="isAdmin"
             @on-delete-click="handleRemoveTourClick"
             @on-more-click="handleMoreClick"
+            @on-edit-click="handleEditTourClick"
           />
+
+          <UModal v-model="isTourFormOpened" prevent-close>
+            <div class="p-4">
+              <TourForm
+                :tour-to-edit="tourToUpdate"
+                @on-submit="handleTourFormSubmit"
+                @on-cancel="closeTourForm"
+              />
+            </div>
+          </UModal>
         </div>
       </div>
     </NuxtLayout>

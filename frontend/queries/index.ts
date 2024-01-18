@@ -1,3 +1,36 @@
+const userFields = `
+  id
+  email
+  roles {
+    id
+    name
+  }
+`;
+
+const travelFields = `
+  id
+  name
+  description
+  isPublic
+  numberOfDays
+  numberOfNights
+  moods {
+    culture
+    history
+    nature
+    party
+    relax
+  }
+`;
+
+const tourFields = `
+  id
+  name
+  startingDate
+  endingDate
+  price
+`;
+
 export const loginQuery = gql`
   mutation login($loginInput: LoginInput!) {
     login(loginInput: $loginInput)
@@ -7,11 +40,7 @@ export const loginQuery = gql`
 export const activeUserQuery = gql`
   query me {
     me {
-      id
-      email
-      roles {
-        name
-      }
+      ${userFields}
     }
   }
 `;
@@ -19,12 +48,7 @@ export const activeUserQuery = gql`
 export const usersQuery = gql`
   query users {
     users {
-      id
-      email
-      roles {
-        id
-        name
-      }
+      ${userFields}
     }
   }
 `;
@@ -32,12 +56,15 @@ export const usersQuery = gql`
 export const createUserMutation = gql`
   mutation createUser($createUserInput: CreateUserInput!) {
     createUser(createUserInput: $createUserInput) {
-      id
-      email
-      roles {
-        id
-        name
-      }
+      ${userFields}
+    }
+  }
+`;
+
+export const updateUserRolesMutation = gql`
+  mutation updateUserRoles($updateUserRolesInput: UpdateUserRolesInput!) {
+    updateUserRoles(updateUserRolesInput: $updateUserRolesInput) {
+      ${userFields}
     }
   }
 `;
@@ -53,19 +80,7 @@ export const removeUserMutation = gql`
 export const travelsQuery = gql`
   query travels($slug: String, $limit: Int, $offset: Int) {
     travels(slug: $slug, limit: $limit, offset: $offset) {
-      id
-      name
-      description
-      isPublic
-      numberOfDays
-      numberOfNights
-      moods {
-        culture
-        history
-        nature
-        party
-        relax
-      }
+      ${travelFields}
     }
   }
 `;
@@ -81,10 +96,7 @@ export const travelWithToursQuery = gql`
     $endingDate: DateTime
   ) {
     travel(id: $id) {
-      id
-      name
-      description
-      isPublic
+      ${travelFields}
       tours(
         limit: $limit
         offset: $offset
@@ -93,11 +105,7 @@ export const travelWithToursQuery = gql`
         startingDate: $startingDate
         endingDate: $endingDate
       ) {
-        id
-        name
-        startingDate
-        endingDate
-        price
+        ${tourFields}
       }
     }
   }
@@ -106,19 +114,7 @@ export const travelWithToursQuery = gql`
 export const createTravelMutation = gql`
   mutation createTravel($createTravelInput: CreateTravelInput!) {
     createTravel(createTravelInput: $createTravelInput) {
-      id
-      name
-      description
-      isPublic
-      numberOfDays
-      numberOfNights
-      moods {
-        culture
-        history
-        nature
-        party
-        relax
-      }
+      ${travelFields}
     }
   }
 `;
@@ -126,19 +122,7 @@ export const createTravelMutation = gql`
 export const updateTravelMutation = gql`
   mutation updateTravel($updateTravelInput: UpdateTravelInput!) {
     updateTravel(updateTravelInput: $updateTravelInput) {
-      id
-      name
-      description
-      isPublic
-      numberOfDays
-      numberOfNights
-      moods {
-        culture
-        history
-        nature
-        party
-        relax
-      }
+      ${travelFields}
     }
   }
 `;
@@ -149,8 +133,33 @@ export const removeTravelMutation = gql`
   }
 `;
 
+export const createTourMutation = gql`
+  mutation createTour($createTourInput: CreateTourInput!) {
+    createTour(createTourInput: $createTourInput) {
+      ${tourFields}
+    }
+  }
+`;
+
+export const updateTourMutation = gql`
+  mutation updateTour($updateTourInput: UpdateTourInput!) {
+    updateTour(updateTourInput: $updateTourInput) {
+      ${tourFields}
+    }
+  }
+`;
+
 export const removeTourMutation = gql`
   mutation removeTour($id: String!) {
     removeTour(id: $id)
+  }
+`;
+
+export const rolesQuery = gql`
+  query roles {
+    roles {
+      id
+      name
+    }
   }
 `;

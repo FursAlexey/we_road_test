@@ -1,31 +1,15 @@
 <script setup lang="ts">
-import type { Tour } from '~/types/__generated__/resolvers-types';
+import type { User } from '~/types/__generated__/resolvers-types';
 import { computed } from 'vue';
-
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('en-gb', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
 
 const columns = [
   {
-    key: 'name',
-    label: 'Name',
+    key: 'email',
+    label: 'Email',
   },
   {
-    key: 'price',
-    label: 'Price',
-  },
-  {
-    key: 'startingDate',
-    label: 'Staring Date',
-  },
-  {
-    key: 'endingDate',
-    label: 'Ending Date',
+    key: 'roles',
+    label: 'Roles',
   },
   {
     key: 'actions',
@@ -34,14 +18,12 @@ const columns = [
 ];
 
 const props = defineProps<{
-  tours: Tour[];
-  hasMore: boolean;
+  users: User[];
   canBeEdited?: boolean;
   canBeDeleted?: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: 'onMoreClick'): void;
   (e: 'onEditClick', id: string): void;
   (e: 'onDeleteClick', id: string): void;
 }>();
@@ -69,12 +51,13 @@ const actions = (row: { id: string }) => {
 };
 
 const rows = computed(() =>
-  props.tours.map((tour) => ({
-    ...tour,
-    startingDate: formatDate(new Date(tour.startingDate)),
-    endingDate: formatDate(new Date(tour.endingDate)),
+  props.users.map((user) => ({
+    ...user,
+    roles: user.roles.map(({ name }) => name).join('; '),
   })),
 );
+
+console.log('rows: ', rows);
 </script>
 
 <template>
@@ -90,14 +73,6 @@ const rows = computed(() =>
         </UDropdown>
       </template>
     </UTable>
-
-    <div
-      class="flex justify-center px-3 py-3.5 border-t border-gray-200 dark:border-gray-700"
-    >
-      <UButton color="violet" v-if="props.hasMore" @click="$emit('onMoreClick')"
-        >Show more</UButton
-      >
-    </div>
   </div>
 </template>
 <style scoped></style>

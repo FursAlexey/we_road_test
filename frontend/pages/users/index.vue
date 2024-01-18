@@ -1,13 +1,22 @@
 <script setup lang="ts">
 import type {
   CreateUserInput,
+  Role,
+  UpdateUserRolesInput,
   User,
 } from '~/types/__generated__/resolvers-types';
 import UserCard from '~/components/userCard.vue';
 import { useActiveUser } from '~/composables/useActiveUser';
 import { onMounted, ref } from 'vue';
-import CreateUserForm from '~/components/createUserForm.vue';
-import { createUserMutation, removeUserMutation, usersQuery } from '~/queries';
+import CreateUserForm from '~/components/UserForm.vue';
+import {
+  createUserMutation,
+  removeUserMutation,
+  rolesQuery,
+  updateUserRolesMutation,
+  usersQuery,
+} from '~/queries';
+import UsersList from '~/components/usersList.vue';
 
 definePageMeta({
   middleware: ['auth'],
@@ -16,20 +25,21 @@ definePageMeta({
 const { load: fetchUsers } = useLazyQuery(usersQuery, undefined, {
   fetchPolicy: 'network-only',
 });
+const { load: fetchRoles } = useLazyQuery(rolesQuery, undefined, {
+  fetchPolicy: 'network-only',
+});
 const { mutate: createUser } = useMutation(createUserMutation);
+const { mutate: updateUserRoles } = useMutation(updateUserRolesMutation);
 const { mutate: removeUser } = useMutation(removeUserMutation);
-const { isAdmin, activeUser } = useActiveUser();
-const isAddUserFormOpened = ref(false);
+const { isAdmin, isEditor, activeUser } = useActiveUser();
+const isUserFormOpened = ref(false);
 const users = ref<User[]>([]);
+const roles = ref<Role[]>([]);
+const userToEdit = ref<User>();
 
-async function createNewUser(payload: any): Promise<void> {
-  const variables: CreateUserInput = {
-    email: payload.email,
-    password: payload.password,
-    roleIds: [],
-  };
+const createNewUser = async (payload: CreateUserInput) => {
   const response = await createUser({
-    createUserInput: variables,
+    createUserInput: payload,
   });
 
   if (response) {
@@ -38,21 +48,71 @@ async function createNewUser(payload: any): Promise<void> {
     users.value = [...users.value, newUser];
   }
 
-  isAddUserFormOpened.value = false;
-}
+  handleCloseUserForm();
+};
 
-async function onUserDelete(id: string): Promise<void> {
+const updateRoles = async (payload: UpdateUserRolesInput) => {
+  const response = await updateUserRoles({
+    updateUserRolesInput: payload,
+  });
+
+  if (response?.data) {
+    const updatedUser: User = response.data.updateUserRoles;
+    users.value = users.value.map((user) =>
+      user.id === updatedUser.id ? updatedUser : user,
+    );
+  }
+
+  handleCloseUserForm();
+};
+
+const handleUserEditClick = (id: string) => {
+  userToEdit.value = users.value.find((user) => user.id === id);
+  isUserFormOpened.value = true;
+};
+
+const handleUserDeleteClick = async (id: string) => {
   await removeUser({
     id,
   });
 
   users.value = users.value.filter((user) => user.id !== id);
-}
+};
+
+const handleCloseUserForm = () => {
+  isUserFormOpened.value = false;
+  userToEdit.value = undefined;
+};
+
+const handleUserFormSubmit = (payload: {
+  email: string;
+  password: string;
+  roles: Role[];
+}) => {
+  const roleIds = payload.roles.map(({ id }) => id);
+
+  if (userToEdit.value) {
+    updateRoles({
+      id: userToEdit.value.id,
+      roleIds,
+    });
+  } else {
+    createNewUser({
+      email: payload.email,
+      password: payload.password,
+      roleIds,
+    });
+  }
+};
 
 onMounted(async () => {
-  const result = await fetchUsers();
+  const fetchUsersResponse = await fetchUsers();
+  const fetchRolesResponse = await fetchRoles();
 
-  users.value = result.users.filter((user: User) => user.id !== activeUser.value?.id);
+  users.value = fetchUsersResponse.users.filter(
+    (user: User) => user.id !== activeUser.value?.id,
+  );
+  roles.value = fetchRolesResponse.roles;
 });
 </script>
 
@@ -61,25 +121,24 @@ onMounted(async () => {
     <NuxtLayout name="common">
       <div class="content">
         <div v-if="isAdmin">
-          <UButton size="xl" @click="isAddUserFormOpened = true">Add</UButton>
+          <UButton @click="isUserFormOpened = true">Create</UButton>
         </div>
-        <template v-for="user in users">
-          <UserCard
-            :roles="user.roles"
-            :id="user.id"
-            :email="user.email"
-            :is-editable="isAdmin"
-            @on-delete="onUserDelete"
-          />
-        </template>
+        <UsersList
+          :users="users"
+          :can-be-edited="isEditor"
+          :can-be-deleted="isAdmin"
+          @on-delete-click="handleUserDeleteClick"
+          @on-edit-click="handleUserEditClick"
+        />
       </div>
 
-      <UModal v-model="isAddUserFormOpened" prevent-close>
-        <div class="p-4">
+      <UModal v-model="isUserFormOpened" prevent-close>
+        <div :class="['p-4', userToEdit && 'h-48']">
           <CreateUserForm
-            :all-roles="[]"
-            @on-submit="createNewUser"
-            @on-close="isAddUserFormOpened = false"
+            :user-to-edit="userToEdit"
+            :roles="roles"
+            @on-submit="handleUserFormSubmit"
+            @on-close="handleCloseUserForm"
           />
         </div>
       </UModal>

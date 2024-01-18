@@ -1,0 +1,60 @@
+<script setup lang="ts">
+import { DatePicker as VCalendarDatePicker } from 'v-calendar';
+import 'v-calendar/style.css';
+
+const props = defineProps({
+  modelValue: {
+    type: Date,
+    default: null,
+  },
+});
+
+const emit = defineEmits(['update:model-value', 'close']);
+
+const colorMode = useColorMode();
+
+const isDark = computed(() => colorMode.value === 'dark');
+
+const date = computed({
+  get: () => props.modelValue,
+  set: (value) => {
+    emit('update:model-value', value);
+    emit('close');
+  },
+});
+
+const currentDate = new Date();
+const yesterday = new Date(currentDate);
+yesterday.setDate(currentDate.getDate() - 1);
+
+const attrs = [
+  {
+    key: 'today',
+    highlight: {
+      color: 'blue',
+      fillMode: 'outline',
+      class: '!bg-gray-100 dark:!bg-gray-800',
+    },
+    dates: new Date(),
+  },
+];
+</script>
+
+<template>
+  <VCalendarDatePicker
+    v-model="date"
+    transparent
+    borderless
+    :attributes="attrs"
+    :is-dark="isDark"
+    title-position="left"
+    trim-weeks
+    :first-day-of-week="2"
+    is-required
+    :disabled-dates="[
+      {
+        end: yesterday,
+      },
+    ]"
+  />
+</template>

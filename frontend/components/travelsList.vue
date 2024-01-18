@@ -5,6 +5,9 @@ import { useDebounce } from '~/composables';
 
 const columns = [
   {
+    key: 'view',
+  },
+  {
     key: 'name',
     label: 'Name',
   },
@@ -33,20 +36,14 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'onMoreClick'): void;
   (e: 'onDetailsClick', id: string): void;
-  (e: 'onEditClick', id: string): void;
+  (e: 'onViewClick', id: string): void;
   (e: 'onDeleteClick', id: string): void;
   (e: 'onSearchChange', value: string): void;
   (e: 'onCreateClick'): void;
 }>();
 
 const actions = (row: { id: string }) => {
-  const allowedActions = [
-    {
-      label: 'Details',
-      icon: 'i-heroicons-arrow-right-circle-20-solid',
-      click: () => emit('onDetailsClick', row.id),
-    },
-  ];
+  const allowedActions = [];
 
   if (props.canBeEdited) {
     allowedActions.push({
@@ -86,6 +83,11 @@ useDebounce(search, (debounceSearch) => {
     </div>
 
     <UTable :rows="travels" :columns="columns">
+      <template #view-data="{ row }">
+        <UButton color="violet" @click="emit('onViewClick', row.id)"
+          >View</UButton
+        >
+      </template>
       <template #actions-data="{ row }">
         <UDropdown :items="actions(row)">
           <UButton
