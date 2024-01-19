@@ -83,6 +83,7 @@ export class TravelsResolver {
     return true;
   }
 
+  // TODO: use dataloader
   @Public()
   @ResolveField(() => ToursList)
   async tours(

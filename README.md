@@ -11,16 +11,17 @@ The application uses JWT authentication. To test various functionalities based o
 - user@weroad.com - User
 
 ## Tests
-There are existing unit and integration tests, serving as examples. Similar testing patterns can be applied to other sections of the application.
+There are existing unit (currency.service.spec.ts) and integration tests (travels.resolver.integration-spec.ts, auth.resolver.integration-spec.ts), serving as examples.
+Similar testing patterns can be applied to other sections of the application.
 
 #### Run unit tests
 ```
-(cd ./backend; yarn test)
+docker compose exec backend sh -c 'yarn test'
 ```
 
 #### Run integration tests
 ```
-(cd ./backend; yarn test:e2e)
+docker compose exec backend sh -c 'yarn test:integration'
 ```
 
 
