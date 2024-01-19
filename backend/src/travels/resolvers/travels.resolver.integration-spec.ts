@@ -15,6 +15,7 @@ import { CreateTravelInput, UpdateTravelInput } from '../dto';
 import { TravelError } from '../errors';
 import { TestingService } from '../../testing/testing/testing.service';
 
+// TODO: move in mocks folder
 const travelsMock: Partial<Travel>[] = [
   {
     name: '1',
