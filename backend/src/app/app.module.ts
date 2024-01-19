@@ -45,6 +45,8 @@ export class AppModule {
   constructor(private readonly seedService: SeedService) {}
 
   async onApplicationBootstrap() {
-    await this.seedService.seed();
+    if (process.env.NODE_ENV !== 'test') {
+      await this.seedService.seed();
+    }
   }
 }
