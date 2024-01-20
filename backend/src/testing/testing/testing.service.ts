@@ -12,13 +12,12 @@ export class TestingService {
     private readonly seedService: SeedService,
   ) {}
 
-  async init() {
+  async createDefaultRolesAndUsers() {
     const roles = await this.seedService.createRoles();
     await this.seedService.createUsers(roles);
   }
 
   async cleanUp() {
-    await this.defaultDataSource.dropDatabase();
-    await this.defaultDataSource.runMigrations();
+    await this.defaultDataSource.synchronize(true);
   }
 }

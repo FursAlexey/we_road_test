@@ -44,7 +44,6 @@ import authConfig from '../config/auth.config';
 export class AppModule {
   constructor(private readonly seedService: SeedService) {}
 
-  // TODO: use database migration
   async onApplicationBootstrap() {
     if (process.env.NODE_ENV !== 'test') {
       await this.seedService.seed();

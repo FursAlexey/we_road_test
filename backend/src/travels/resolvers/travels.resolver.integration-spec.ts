@@ -86,7 +86,7 @@ describe('Travels resolver', () => {
     testingService = module.get<TestingService>(TestingService);
     travelsService = module.get<TravelsService>(TravelsService);
 
-    await testingService.init();
+    await testingService.createDefaultRolesAndUsers();
 
     // todo: use variables
     [adminToken, userToken] = await Promise.all([

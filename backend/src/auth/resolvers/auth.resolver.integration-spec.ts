@@ -7,20 +7,37 @@ import { AppModule } from '../../app/app.module';
 import { INestApplication } from '@nestjs/common';
 import { UsersModule } from '../../users/users.module';
 import { UtilsModule } from '../../utils/utils.module';
+import { TestingService } from '../../testing/testing/testing.service';
+import { SeedersModule } from '../../database/seeders/seeders.module';
 
 describe('Auth resolver', () => {
   let app: INestApplication;
   let resolver: AuthResolver;
+  let testingService: TestingService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, UsersModule, UtilsModule],
-      providers: [AuthResolver, AuthService],
+      imports: [
+        AppModule,
+        UsersModule,
+        UtilsModule,
+        TestingModule,
+        SeedersModule,
+      ],
+      providers: [AuthResolver, AuthService, TestingService],
     }).compile();
 
     app = module.createNestApplication();
     resolver = module.get<AuthResolver>(AuthResolver);
+    testingService = module.get<TestingService>(TestingService);
+
     await app.init();
+    await testingService.createDefaultRolesAndUsers();
+  });
+
+  afterAll(async () => {
+    await testingService.cleanUp();
+    await app.close();
   });
 
   it('should be defined', () => {
