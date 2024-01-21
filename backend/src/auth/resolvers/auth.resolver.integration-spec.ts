@@ -9,11 +9,21 @@ import { UsersModule } from '../../users/users.module';
 import { UtilsModule } from '../../utils/utils.module';
 import { TestingService } from '../../testing/testing/testing.service';
 import { SeedersModule } from '../../database/seeders/seeders.module';
+import { defaultAdminUser } from '../../testing/default-users';
 
 describe('Auth resolver', () => {
   let app: INestApplication;
   let resolver: AuthResolver;
   let testingService: TestingService;
+
+  const getLoginMutation = (email: string, password: string) => `
+    mutation {
+      login(loginInput: {
+        email: "${email}",
+        password: "${password}"
+      })
+    }
+  `;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -44,40 +54,38 @@ describe('Auth resolver', () => {
     expect(resolver).toBeDefined();
   });
 
-  it('should pass password verification', async () => {
-    const email = 'admin@weroad.com';
-    const correctPassword = 'Admin';
+  it('should pass authentication', async () => {
     const response = await request(app.getHttpServer())
       .post('/graphql')
       .send({
-        query: `
-          mutation {
-            login(loginInput: {
-              email: "${email}",
-              password: "${correctPassword}"
-            })
-          }
-        `,
-      });
+        query: getLoginMutation(
+          defaultAdminUser.email,
+          defaultAdminUser.password,
+        ),
+      })
+      .expect(200);
 
     expect(response.body.data.login).toBeTruthy();
   });
 
-  it('should fail password verification', async () => {
-    const email = 'admin@weroad.com';
-    const inCorrectPassword = 'NotAdmin';
+  it('should fail if email is incorrect', async () => {
+    const incorrectEmail = 'notadmin@weroad.com';
 
     request(app.getHttpServer())
       .post('/graphql')
       .send({
-        query: `
-          mutation {
-            login(loginInput: {
-              email: "${email}",
-              password: "${inCorrectPassword}"
-            })
-          }
-        `,
+        query: getLoginMutation(incorrectEmail, defaultAdminUser.password),
+      })
+      .expect(401);
+  });
+
+  it('should fail if password is incorrect', async () => {
+    const incorrectPassword = 'NotAdmin';
+
+    request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: getLoginMutation(defaultAdminUser.email, incorrectPassword),
       })
       .expect(401);
   });

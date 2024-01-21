@@ -14,9 +14,11 @@ import { UsersModule } from '../../users/users.module';
 import { CreateTravelInput, UpdateTravelInput } from '../dto';
 import { TravelError } from '../errors';
 import { TestingService } from '../../testing/testing/testing.service';
+import { defaultAdminUser, defaultUser } from '../../testing/default-users';
 
-// TODO: move in mocks folder
-const travelsMock: Partial<Travel>[] = [
+const NOT_EXISTING_TRAVEL_ID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
+
+const travelsPayload: Partial<Travel>[] = [
   {
     name: '1',
     description: 'description',
@@ -88,20 +90,19 @@ describe('Travels resolver', () => {
 
     await testingService.createDefaultRolesAndUsers();
 
-    // todo: use variables
     [adminToken, userToken] = await Promise.all([
       authService.login({
-        email: 'admin@weroad.com',
-        password: 'Admin',
+        email: defaultAdminUser.email,
+        password: defaultAdminUser.password,
       }),
       authService.login({
-        email: 'user@weroad.com',
-        password: 'User',
+        email: defaultUser.email,
+        password: defaultUser.password,
       }),
     ]);
 
     travels = await Promise.all(
-      travelsMock.map((travelMock) => travelsService.create(travelMock)),
+      travelsPayload.map((payload) => travelsService.create(payload)),
     );
 
     await app.init();
@@ -266,6 +267,24 @@ describe('Travels resolver', () => {
 
       expect(response.body.data.travel.id).toEqual(travelId);
     });
+
+    it('should fail if travel not found', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send({
+          query: `
+          query {
+            travel (id: "${NOT_EXISTING_TRAVEL_ID}") {
+              id
+            }
+          }
+        `,
+        })
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+
+      expect(response.body.errors[0].message).toEqual(TravelError.NotFound);
+    });
   });
 
   describe('create travel mutation', () => {
@@ -285,7 +304,7 @@ describe('Travels resolver', () => {
 
     let createdTravel: Travel;
 
-    const createTravelMutation = `
+    const getCreateTravelMutation = `
       mutation {
         createTravel (createTravelInput: {
           name: "${newTravelPayload.name}",
@@ -324,7 +343,7 @@ describe('Travels resolver', () => {
       const response = await request(app.getHttpServer())
         .post('/graphql')
         .send({
-          query: createTravelMutation,
+          query: getCreateTravelMutation,
         })
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200);
@@ -380,9 +399,8 @@ describe('Travels resolver', () => {
     });
 
     it('show fail if travel does not exist', async () => {
-      const notExistingTravelId = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
       const updateTravelPayload: UpdateTravelInput = {
-        id: notExistingTravelId,
+        id: NOT_EXISTING_TRAVEL_ID,
         name: 'updated name',
         description: 'updated description',
         numberOfDays: 12,
@@ -423,12 +441,10 @@ describe('Travels resolver', () => {
     });
 
     it('should fail if travel does not exist', async () => {
-      const notExistingTravelId = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
-
       const response = await request(app.getHttpServer())
         .post('/graphql')
         .send({
-          query: getRemoveTravelMutation(notExistingTravelId),
+          query: getRemoveTravelMutation(NOT_EXISTING_TRAVEL_ID),
         })
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200);

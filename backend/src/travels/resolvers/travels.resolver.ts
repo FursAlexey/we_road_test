@@ -41,8 +41,14 @@ export class TravelsResolver {
   }
 
   @Query(() => Travel, { name: 'travel' })
-  getOne(@Args('id') id: string) {
-    return this.travelsService.getById(id);
+  async getOne(@Args('id') id: string) {
+    const travel = await this.travelsService.getById(id);
+
+    if (!travel) {
+      throw new BadRequestException(TravelError.NotFound);
+    }
+
+    return travel;
   }
 
   @Roles(UserRole.Admin)
