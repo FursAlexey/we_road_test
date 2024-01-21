@@ -11,7 +11,7 @@ The application uses JWT authentication. To test various functionalities based o
 - user@weroad.com - User
 
 ## Tests
-There are existing unit (currency.service.spec.ts) and integration tests (travels.resolver.integration-spec.ts, auth.resolver.integration-spec.ts), serving as examples.
+There are existing unit (currency.service.spec.ts) and integration tests (travels.resolver.integration-spec.ts, auth.resolver.integration-spec.ts, users.resolver.integration-spec.ts), serving as examples.
 Similar testing patterns can be applied to other sections of the application.
 
 #### Run unit tests
