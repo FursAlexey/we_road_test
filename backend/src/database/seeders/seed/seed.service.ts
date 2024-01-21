@@ -129,11 +129,12 @@ export class SeedService {
     return rolesRepository.find();
   }
 
-  async createUsers(roles: Role[]): Promise<void> {
+  async createUsers(roles: Role[]): Promise<User[]> {
     const usersRepository = this.defaultDataSource.getRepository(User);
     const existingUsers = await usersRepository.findBy({
       email: In(roles.map((role) => this.createEmailByRoleName(role.name))),
     });
+    const createdUsers: User[] = [];
 
     for (const role of roles) {
       const email = this.createEmailByRoleName(role.name);
@@ -152,15 +153,19 @@ export class SeedService {
       }
 
       if (!existingUser) {
-        usersRepository.save(
+        const newUser = await usersRepository.save(
           usersRepository.create({
             email,
             password: await this.hashService.getHash(role.name),
             roles: rolesToAssign,
           }),
         );
+
+        createdUsers.push(newUser);
       }
     }
+
+    return createdUsers;
   }
 
   async createTravels(): Promise<void> {

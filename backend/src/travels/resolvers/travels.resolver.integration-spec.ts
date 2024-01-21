@@ -88,7 +88,9 @@ describe('Travels resolver', () => {
     testingService = module.get<TestingService>(TestingService);
     travelsService = module.get<TravelsService>(TravelsService);
 
-    await testingService.createDefaultRolesAndUsers();
+    await testingService.createUsersFromRoles(
+      await testingService.createDefaultRoles(),
+    );
 
     [adminToken, userToken] = await Promise.all([
       authService.login({
@@ -247,7 +249,7 @@ describe('Travels resolver', () => {
     });
   });
 
-  describe('travel', () => {
+  describe('travel query', () => {
     it('should return travel by id', async () => {
       const travelId = travels[0].id;
 

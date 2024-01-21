@@ -13,6 +13,7 @@ import { ReqUser } from '../decorators';
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
+  @Roles(UserRole.Admin)
   @Query(() => [User], { name: 'users' })
   listUsers() {
     return this.usersService.find();

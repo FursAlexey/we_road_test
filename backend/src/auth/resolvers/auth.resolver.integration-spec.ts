@@ -42,7 +42,9 @@ describe('Auth resolver', () => {
     testingService = module.get<TestingService>(TestingService);
 
     await app.init();
-    await testingService.createDefaultRolesAndUsers();
+    await testingService.createUsersFromRoles(
+      await testingService.createDefaultRoles(),
+    );
   });
 
   afterAll(async () => {
