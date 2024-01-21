@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 
 import { SeedService } from '../../database/seeders/seed/seed.service';
 
 @Injectable()
-export class TestingService {
+export class TestingService implements OnModuleInit {
   constructor(
     @InjectDataSource()
     private readonly defaultDataSource: DataSource,
@@ -19,5 +19,9 @@ export class TestingService {
 
   async cleanUp() {
     await this.defaultDataSource.synchronize(true);
+  }
+
+  onModuleInit() {
+    return this.defaultDataSource.synchronize();
   }
 }
